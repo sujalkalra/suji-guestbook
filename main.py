@@ -100,7 +100,7 @@ def render_content():
         P(Em("Write something nice!")),  # Instructional text
         form,  # Form for message submission
         Div(
-            "Made With 💖 by",  # Footer section with author credit
+            "Made With 💖 by ",  # Footer section with author credit
             A("Sujal", href="https://github.com/sujalkalra", target='_blank'),  # Link to author's GitHub
         ),
         Hr(),  # Horizontal line
