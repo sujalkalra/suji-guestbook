@@ -20,13 +20,13 @@ app, rt = fast_app(
     hdrs=(Link(rel='icon', type='image/favicon.ico', href="/assets/me.ico"),),
 )
 
-def get_cet_time():
-    cet_tz = pytz.timezone("Europe/Berlin")  # Use a timezone that handles daylight saving
-    return datetime.now(cet_tz)
+def get_ist_time():
+    ist_tz = pytz.timezone("Asia/Kolkata")  # IST timezone
+    return datetime.now(ist_tz)
 
 def add_message(name, message):
-    # Get current time in CET and format it
-    timestamp = get_cet_time().strftime(TIMESTAMP_FMT)
+    # Get current time in IST and format it
+    timestamp = get_ist_time().strftime(TIMESTAMP_FMT)
     supabase.table("myGuestbook").insert(
         {"name": name, "message": message, "timestamp": timestamp}
     ).execute()
