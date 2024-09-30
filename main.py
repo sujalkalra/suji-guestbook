@@ -1,123 +1,120 @@
-# Import necessary modules
 import os
 from datetime import datetime
-import pytz  # Library to work with time zones
-from supabase import create_client  # Supabase client for database interaction
-from dotenv import load_dotenv  # For loading environment variables from a .env file
-from fasthtml.common import *  # Importing HTML utility functions
+import pytz
+from supabase import create_client
+from dotenv import load_dotenv
 
-# Load environment variables from .env file
+from fasthtml.common import *
+
+# Load environment variables
 load_dotenv()
 
-# Define character limits for name and message inputs
 MAX_NAME_CHAR = 15
 MAX_MESSAGE_CHAR = 50
-
-# Define timestamp format for displaying in CET timezone
 TIMESTAMP_FMT = "%Y-%m-%d %I:%M:%S %p CET"
 
-# Initialize Supabase client using environment variables
+# Initialize supabase client
 supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
 
-# Initialize Fast app and set up header with favicon
+# Create app with a favicon link
 app, rt = fast_app(
     hdrs=(Link(rel='icon', type='image/favicon.ico', href="/assets/me.ico"),),
 )
 
-# Reinitialize Fast app (possibly redundant, remove if not needed)
-app, rt = fast_app()
-
-# Function to get the current CET time
 def get_cet_time():
-    cet_tz = pytz.timezone("CET")  # Set timezone to CET
-    return datetime.now(cet_tz)  # Return the current time in CET
+    cet_tz = pytz.timezone("CET")
+    return datetime.now(cet_tz)
 
-# Function to add a message to the Supabase guestbook table
 def add_message(name, message):
-    timestamp = get_cet_time().strftime(TIMESTAMP_FMT)  # Get current time in the defined format
-    # Insert the name, message, and timestamp into the 'myGuestbook' table
+    timestamp = get_cet_time().strftime(TIMESTAMP_FMT)
     supabase.table("myGuestbook").insert(
         {"name": name, "message": message, "timestamp": timestamp}
     ).execute()
 
-# Function to retrieve all messages from the database
 def get_messages():
-    # Retrieve all records from 'myGuestbook', sorted by 'id' in descending order (latest first)
+    # Sort by id in descending order to get the latest messages first
     response = (
         supabase.table("myGuestbook").select("*").order("id", desc=True).execute()
     )
-    return response.data  # Return the retrieved data
+    return response.data
 
-# Function to render a single message entry as an HTML article
 def render_message(entry):
     return (
         Article(
-            Header(f"Name: {entry['name']}"),  # Display the name as a header
-            P(entry['message']),  # Display the message in a paragraph
-            Footer(Small(Em(f"Posted: {entry['timestamp']}")))  # Display the timestamp in the footer
+            Header(f"Name: {entry['name']}"),
+            P(entry['message']),
+            Footer(Small(Em(f"Posted: {entry['timestamp']}"))),
         )
     )
 
-# Function to render the list of all messages
 def render_message_list():
-    messages = get_messages()  # Get all messages from the database
+    messages = get_messages()
     return Div(
-        *[render_message(entry) for entry in messages],  # Render each message in the list
-        id="message-list",  # Set the HTML element ID for later targeting
+        *[render_message(entry) for entry in messages],
+        id="message-list",
     )
 
-# Function to render the main content, including the form and message list
 def render_content():
-    # Create a form for submitting a new message
     form = Form(
         Fieldset(
             Input(
                 type="text",
                 name="name",
-                placeholder="Name",  # Placeholder for the name field
-                required=True,  # Make the field required
-                maxlength=MAX_NAME_CHAR,  # Set maximum character limit for the name
+                placeholder="Name",
+                required=True,
+                maxlength=MAX_NAME_CHAR,
             ),
             Input(
                 type="text",
                 name="message",
-                placeholder="Message",  # Placeholder for the message field
-                required=True,  # Make the field required
-                maxlength=MAX_MESSAGE_CHAR,  # Set maximum character limit for the message
+                placeholder="Message",
+                required=True,
+                maxlength=MAX_MESSAGE_CHAR,
             ),
-            Button("Submit", type="submit"),  # Submit button for the form
-            role="group",  # Group the inputs together for accessibility
+            Button("Submit", type="submit"),
+            role="group",
         ),
-        method="post",  # Form submission method
-        hx_post="/submit-message",  # URL to send the form data to
-        hx_target="#message-list",  # HTML target to update after submission
-        hx_swap="outerHTML",  # Swap content after form submission
-        hx_on__after_request="this.reset()",  # Reset form fields after submission
+        method="post",
+        hx_post="/submit-message",
+        hx_target="#message-list",
+        hx_swap="outerHTML",
+        hx_on__after_request="this.reset()",
     )
 
-    # Return the entire content including the form and message list
+    # Add an image using the 'img' tag from FASTHtml
+    image_with_link = A(
+        Img(
+            src="/assets/me.png", 
+            alt="Guestbook Image",  
+            style="width:50px; height:50px; position: absolute; top: 20px; right: 40px;"
+        ),
+        href="https://github.com/sujalkalra",  # Replace with the link you want
+        target="_blank"  # Opens the link in a new tab
+    )
+
     return Div(
-        P(Em("Write something nice!")),  # Instructional text
-        form,  # Form for message submission
+        image_with_link,
+        P(Em("Write something nice!")),
+        form,
+        # Add the image before the footer
+        
         Div(
-            "Made With 💖 by ",  # Footer section with author credit
-            A("Sujal", href="https://github.com/sujalkalra", target='_blank'),  # Link to author's GitHub
+            "Made With 💖 by",
+            A("Sujal", href="https://github.com/sujalkalra", target='_blank'),
         ),
-        Hr(),  # Horizontal line
-        render_message_list(),  # List of messages
+        Hr(),
+        render_message_list(),
     )
 
-# Route handler for the homepage
 @rt('/')
 def get():
-    # Render the page with a title and the main content
-    return Titled("Suji's Guestbook 📖", render_content())
+    return Titled("Suji's Guestbook 📖", render_content()),
 
-# Route handler for message submission
 @rt("/submit-message", methods=["post"])
 def post(name: str, message: str):
-    add_message(name, message)  # Add the message to the database
-    return render_message_list()  # Return the updated message list
+    add_message(name, message)
+    return render_message_list()
 
-# Start the application server
+# Serve the application
 serve()
+
