@@ -30,7 +30,7 @@ pip install python-fasthtml
 ```
 
 <div style="text-align: center;">
-    <a href="[https://example.com](https://suji-guestbook-9f2j.vercel.app/)">
+    <a href="https://suji-guestbook-9f2j.vercel.app/">
         <img src="assets/me.png" alt="Guestbook Preview" width="500">
     </a>
 </div>
