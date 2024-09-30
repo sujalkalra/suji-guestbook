@@ -99,7 +99,7 @@ def render_content():
         # Add the image before the footer
         
         Div(
-            "Made With 💖 by",
+            "Made With 💖 by ",
             A("Sujal", href="https://github.com/sujalkalra", target='_blank'),
         ),
         Hr(),
