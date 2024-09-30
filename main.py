@@ -81,18 +81,56 @@ def render_content():
         hx_on__after_request="this.reset()",
     )
 
-    # Add an image using the 'img' tag from FASTHtml
+    # Add an image using the 'img' tag from FASTHtml with media queries handled in Python
     image_with_link = A(
         Img(
             src="/assets/me.png", 
             alt="Guestbook Image",  
-            style="width:50px; height:50px; position: absolute; top: 20px; right: 40px;"
+            _class="guestbook-image"  # Add class to image for styling
         ),
         href="https://github.com/sujalkalra",  # Replace with the link you want
         target="_blank"  # Opens the link in a new tab
     )
 
+    # Add inline media query using FASTHtml's Style component
+    css_style = Style(
+        """
+        /* Default styling for desktop and larger screens */
+        .guestbook-image {
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            top: 20px;
+            right: 40px;
+        }
+
+        /* Center the image and make it larger on mobile */
+        @media (max-width: 600px) {
+            .guestbook-image {
+                width: 100px;
+                height: 100px;
+                position: static;  /* Remove absolute positioning */
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+                margin-bottom: 10px;  /* Add space between image and heading */
+            }
+
+            /* Align header to center on mobile */
+            .guestbook-header {
+                text-align: center;
+            }
+        }
+
+        /* Default styling for desktop */
+        .guestbook-header {
+            text-align: center;
+        }
+        """
+    )
+
     return Div(
+        css_style,  # Apply the CSS for responsiveness
         image_with_link,
         P(Em("Write something nice!")),
         form,
