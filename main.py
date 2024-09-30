@@ -3,7 +3,6 @@ from datetime import datetime
 import pytz
 from supabase import create_client
 from dotenv import load_dotenv
-
 from fasthtml.common import *
 
 # Load environment variables
@@ -11,7 +10,7 @@ load_dotenv()
 
 MAX_NAME_CHAR = 15
 MAX_MESSAGE_CHAR = 50
-TIMESTAMP_FMT = "%Y-%m-%d %I:%M:%S %p CET"
+TIMESTAMP_FMT = "%Y-%m-%d %I:%M:%S %p %Z"  # Updated to include timezone
 
 # Initialize supabase client
 supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
@@ -22,10 +21,11 @@ app, rt = fast_app(
 )
 
 def get_cet_time():
-    cet_tz = pytz.timezone("CET")
+    cet_tz = pytz.timezone("Europe/Berlin")  # Use a timezone that handles daylight saving
     return datetime.now(cet_tz)
 
 def add_message(name, message):
+    # Get current time in CET and format it
     timestamp = get_cet_time().strftime(TIMESTAMP_FMT)
     supabase.table("myGuestbook").insert(
         {"name": name, "message": message, "timestamp": timestamp}
@@ -96,8 +96,6 @@ def render_content():
         image_with_link,
         P(Em("Write something nice!")),
         form,
-        # Add the image before the footer
-        
         Div(
             "Made With 💖 by ",
             A("Sujal", href="https://github.com/sujalkalra", target='_blank'),
@@ -117,4 +115,3 @@ def post(name: str, message: str):
 
 # Serve the application
 serve()
-
