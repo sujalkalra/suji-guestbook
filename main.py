@@ -21,7 +21,7 @@ supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
 
 # Initialize Fast app and set up header with favicon
 app, rt = fast_app(
-    hdrs=(Link(rel='icon', type='image/favicon.png', href="/assets/about.png"),),
+    hdrs=(Link(rel='icon', type='image/favicon.ico', href="/assets/me.ico"),),
 )
 
 # Reinitialize Fast app (possibly redundant, remove if not needed)
