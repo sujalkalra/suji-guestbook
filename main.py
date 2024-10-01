@@ -9,7 +9,7 @@ from fasthtml.common import *
 load_dotenv()
 
 MAX_NAME_CHAR = 15
-MAX_MESSAGE_CHAR = 50
+MAX_MESSAGE_CHAR = 500
 TIMESTAMP_FMT = "%Y-%m-%d %I:%M:%S %p %Z"  # Updated to include timezone
 
 # Initialize supabase client
