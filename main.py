@@ -132,7 +132,6 @@ def render_content():
     return Div(
         css_style,  # Apply the CSS for responsiveness
         image_with_link,
-        
         P(Em("Write something nice!")),
         Div(
             "Made With 💖 by ",
