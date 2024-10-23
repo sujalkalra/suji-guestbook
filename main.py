@@ -134,12 +134,13 @@ def render_content():
         image_with_link,
         P(Em("Write something nice!")),
         form,
+        
+        Hr(),
+        render_message_list(),
         Div(
             "Made With 💖 by ",
             A("Sujal", href="https://github.com/sujalkalra", target='_blank'),
         ),
-        Hr(),
-        render_message_list(),
     )
 
 @rt('/')
