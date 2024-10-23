@@ -133,14 +133,13 @@ def render_content():
         css_style,  # Apply the CSS for responsiveness
         image_with_link,
         P(Em("Write something nice!")),
+        form,
         Div(
             "Made With 💖 by ",
             A("Sujal", href="https://github.com/sujalkalra", target='_blank'),
         ),
-        form,
         Hr(),
         render_message_list(),
-        
     )
 
 @rt('/')
