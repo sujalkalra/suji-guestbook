@@ -5,7 +5,8 @@ from supabase import create_client
 from dotenv import load_dotenv
 from fasthtml.common import *
 
-@@ -10,68 +10,367 @@
+# Load environment variables
+load_dotenv()
 
 MAX_NAME_CHAR = 15
 MAX_MESSAGE_CHAR = 500
@@ -74,7 +75,9 @@ def render_content():
             role="group",
         ),
         method="post",
-@@ -81,75 +380,63 @@ def render_content():
+        hx_post="/submit-message",
+        hx_target="#message-list",
+        hx_swap="outerHTML",
         hx_on__after_request="this.reset()",
     )
 
@@ -88,6 +91,7 @@ def render_content():
         href="https://github.com/sujalkalra",  # Replace with the link you want
         target="_blank"  # Opens the link in a new tab
     )
+
     # Add inline media query using FASTHtml's Style component
     css_style = Style(
         """
@@ -99,6 +103,7 @@ def render_content():
             top: 20px;
             right: 40px;
         }
+
         /* Center the image and make it larger on mobile */
         @media (max-width: 600px) {
             .guestbook-image {
@@ -110,11 +115,13 @@ def render_content():
                 margin-right: auto;
                 margin-bottom: 10px;  /* Add space between image and heading */
             }
+
             /* Align header to center on mobile */
             .guestbook-header {
                 text-align: center;
             }
         }
+
         /* Default styling for desktop */
         .guestbook-header {
             text-align: center;
@@ -143,3 +150,6 @@ def get():
 def post(name: str, message: str):
     add_message(name, message)
     return render_message_list()
+
+# Serve the application
+serve()
