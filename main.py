@@ -12,8 +12,12 @@ MAX_NAME_CHAR = 15
 MAX_MESSAGE_CHAR = 500
 TIMESTAMP_FMT = "%Y-%m-%d %I:%M:%S %p %Z"  # Updated to include timezone
 
+# Extract Supabase URL and Key from SUPABASE_URI
+SUPABASE_URI = os.getenv("SUPABASE_URI")
+SUPABASE_URL, SUPABASE_KEY = SUPABASE_URI.split("|")
+
 # Initialize supabase client
-supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # Create app with a favicon link
 app, rt = fast_app(
@@ -81,21 +85,18 @@ def render_content():
         hx_on__after_request="this.reset()",
     )
 
-    # Add an image using the 'img' tag from FASTHtml with media queries handled in Python
     image_with_link = A(
         Img(
             src="/assets/me.png", 
             alt="Guestbook Image",  
-            _class="guestbook-image"  # Add class to image for styling
+            _class="guestbook-image"
         ),
-        href="https://github.com/sujalkalra",  # Replace with the link you want
-        target="_blank"  # Opens the link in a new tab
+        href="https://github.com/sujalkalra",
+        target="_blank"
     )
 
-    # Add inline media query using FASTHtml's Style component
     css_style = Style(
         """
-        /* Default styling for desktop and larger screens */
         .guestbook-image {
             width: 50px;
             height: 50px;
@@ -104,25 +105,22 @@ def render_content():
             right: 40px;
         }
 
-        /* Center the image and make it larger on mobile */
         @media (max-width: 600px) {
             .guestbook-image {
                 width: 100px;
                 height: 100px;
-                position: static;  /* Remove absolute positioning */
+                position: static;
                 display: block;
                 margin-left: auto;
                 margin-right: auto;
-                margin-bottom: 10px;  /* Add space between image and heading */
+                margin-bottom: 10px;
             }
 
-            /* Align header to center on mobile */
             .guestbook-header {
                 text-align: center;
             }
         }
 
-        /* Default styling for desktop */
         .guestbook-header {
             text-align: center;
         }
@@ -130,7 +128,7 @@ def render_content():
     )
 
     return Div(
-        css_style,  # Apply the CSS for responsiveness
+        css_style,
         image_with_link,
         P(Em("Write something nice!")),
         form,
