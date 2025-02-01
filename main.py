@@ -12,8 +12,12 @@ MAX_NAME_CHAR = 15
 MAX_MESSAGE_CHAR = 500
 TIMESTAMP_FMT = "%Y-%m-%d %I:%M:%S %p %Z"  # Updated to include timezone
 
+# Supabase credentials
+SUPABASE_URL = "your_supabase_url_here"
+SUPABASE_KEY = "your_supabase_key_here"
+
 # Initialize supabase client
-supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # Create app with a favicon link
 app, rt = fast_app(
