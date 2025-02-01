@@ -12,9 +12,9 @@ MAX_NAME_CHAR = 15
 MAX_MESSAGE_CHAR = 500
 TIMESTAMP_FMT = "%Y-%m-%d %I:%M:%S %p %Z"  # Updated to include timezone
 
-# Supabase credentials
-SUPABASE_URL = "your_supabase_url_here"
-SUPABASE_KEY = "your_supabase_key_here"
+# Supabase credentials from environment variables
+SUPABASE_URL = os.getenv("SUPABASE_URL")  # Fetch URL from environment
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")  # Fetch Key from environment
 
 # Initialize supabase client
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
