@@ -13,8 +13,8 @@ MAX_MESSAGE_CHAR = 500
 TIMESTAMP_FMT = "%Y-%m-%d %I:%M:%S %p %Z"  # Updated to include timezone
 
 # Supabase credentials from environment variables
-SUPABASE_URL = os.getenv("SUPABASE_URL")  # Fetch URL from environment
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")  # Fetch Key from environment
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 # Initialize supabase client
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -29,14 +29,12 @@ def get_ist_time():
     return datetime.now(ist_tz)
 
 def add_message(name, message):
-    # Get current time in IST and format it
     timestamp = get_ist_time().strftime(TIMESTAMP_FMT)
     supabase.table("myGuestbook").insert(
         {"name": name, "message": message, "timestamp": timestamp}
     ).execute()
 
 def get_messages():
-    # Sort by id in descending order to get the latest messages first
     response = (
         supabase.table("myGuestbook").select("*").order("id", desc=True).execute()
     )
@@ -85,18 +83,25 @@ def render_content():
         hx_on__after_request="this.reset()",
     )
 
-    # Add an image using the 'img' tag from FASTHtml with media queries handled in Python
+    # Image with link
     image_with_link = A(
         Img(
             src="/assets/me.png",
             alt="Guestbook Image",
-            _class="guestbook-image"  # Add class to image for styling
+            _class="guestbook-image"
         ),
-        href="https://github.com/sujalkalra",  # Replace with the link you want
-        target="_blank"  # Opens the link in a new tab
+        href="https://github.com/sujalkalra",
+        target="_blank"
     )
 
-    # Add inline media query using FASTHtml's Style component
+    # Floating neon button
+    floating_button = A(
+        "Try New Version",
+        href="https://sujiguestbook2.vercel.app",  # Replace with actual link
+        _class="floating-neon-button"
+    )
+
+    # CSS Styling
     css_style = Style(
         """
         /* Default styling for desktop and larger screens */
@@ -113,29 +118,45 @@ def render_content():
             .guestbook-image {
                 width: 100px;
                 height: 100px;
-                position: static;  /* Remove absolute positioning */
+                position: static;
                 display: block;
                 margin-left: auto;
                 margin-right: auto;
-                margin-bottom: 10px;  /* Add space between image and heading */
+                margin-bottom: 10px;
             }
-
-            /* Align header to center on mobile */
             .guestbook-header {
                 text-align: center;
             }
         }
 
-        /* Default styling for desktop */
-        .guestbook-header {
-            text-align: center;
+        /* Floating Neon Button */
+        .floating-neon-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(90deg, #ff00ff, #00ffff);
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            padding: 12px 20px;
+            border: 2px solid white;
+            border-radius: 8px;
+            text-decoration: none;
+            box-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .floating-neon-button:hover {
+            box-shadow: 0 0 20px #ff00ff, 0 0 30px #00ffff;
+            transform: scale(1.1);
         }
         """
     )
 
     return Div(
-        css_style,  # Apply the CSS for responsiveness
+        css_style,
         image_with_link,
+        floating_button,  # Add floating button
         P(Em("Write something nice!")),
         form,
         Div(
