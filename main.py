@@ -16,6 +16,9 @@ TIMESTAMP_FMT = "%Y-%m-%d %I:%M:%S %p %Z"
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise ValueError("Missing Supabase URL or API Key")
+
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 app, rt = fast_app(
@@ -27,6 +30,8 @@ def get_ist_time():
     return datetime.now(ist_tz)
 
 def add_message(name, message):
+    if not name.strip() or not message.strip():
+        return
     timestamp = get_ist_time().strftime(TIMESTAMP_FMT)
     supabase.table("myGuestbook").insert(
         {"name": name, "message": message, "timestamp": timestamp}
@@ -36,14 +41,14 @@ def get_messages():
     response = (
         supabase.table("myGuestbook").select("*").order("id", desc=True).execute()
     )
-    return response.data
+    return response.data if response.data else []
 
 def render_message(entry):
     return (
         Article(
-            Header(f"Name: {entry['name']}"),
-            P(entry['message']),
-            Footer(Small(Em(f"Posted: {entry['timestamp']}"))),
+            Header(f"Name: {entry.get('name', 'Unknown')}")
+            ,P(entry.get('message', '')),
+            Footer(Small(Em(f"Posted: {entry.get('timestamp', 'Unknown')}")))
         )
     )
 
@@ -55,7 +60,6 @@ def render_message_list():
     )
 
 def render_content():
-    # Custom Preloader (Hamster Wheel Animation)
     preloader = Div(
         Div(
             Div(_class="hamster-container",
@@ -122,7 +126,7 @@ def render_content():
             setTimeout(function() {
                 document.querySelector(".preloader").style.display = "none";
                 document.querySelector("#main-content").style.display = "block";
-            }, 7000);
+            }, 3000);
         });
         """
     )
