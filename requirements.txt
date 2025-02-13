@@ -1,7 +1,6 @@
 python-dotenv==1.0.1
-python_fasthtml==0.4.5
-pytz==2022.5
 supabase==2.7.4
-sqlite-minutils
+pytz==2022.5
 fastapi
 uvicorn
+fasthtml
