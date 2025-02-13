@@ -55,10 +55,22 @@ def render_message_list():
     )
 
 def render_content():
-    # Custom Preloader (Your Given HTML & CSS Preloader)
+    # Custom Preloader (Hamster Wheel Animation)
     preloader = Div(
         Div(
-            Div(_class="spinner"),
+            Div(_class="hamster-container",
+                Div(_class="hamster",
+                    Div(_class="hamster-body",
+                        Div(_class="hamster-eye"),
+                        Div(_class="hamster-ear"),
+                        Div(_class="hamster-nose"),
+                        Div(_class="hamster-front-leg"),
+                        Div(_class="hamster-back-leg"),
+                        Div(_class="hamster-tail"),
+                    ),
+                ),
+                Div(_class="hamster-wheel"),
+            ),
             P("Loading...", _class="loading-text"),
             _class="preloader-content"
         ),
@@ -133,23 +145,44 @@ def render_content():
             flex-direction: column;
             align-items: center;
         }
-        .spinner {
+        .hamster-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+        .hamster {
+            position: absolute;
             width: 50px;
-            height: 50px;
+            height: 30px;
+            background: orange;
+            border-radius: 50%;
+            animation: run 1s linear infinite;
+        }
+        .hamster-eye, .hamster-ear, .hamster-nose {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: white;
+            border-radius: 50%;
+        }
+        .hamster-eye { top: 5px; left: 35px; }
+        .hamster-ear { top: -5px; left: 20px; background: pink; }
+        .hamster-nose { top: 15px; left: 48px; }
+        .hamster-wheel {
+            position: absolute;
+            width: 80px;
+            height: 80px;
             border: 5px solid white;
-            border-top: 5px solid cyan;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-        }
-        .loading-text {
-            color: white;
-            font-size: 16px;
-            margin-top: 10px;
-            font-family: Arial, sans-serif;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+        @keyframes run {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
         }
         """
     )
