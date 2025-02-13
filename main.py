@@ -55,9 +55,13 @@ def render_message_list():
     )
 
 def render_content():
-    # Preloader
+    # Custom Preloader (Your Given HTML & CSS Preloader)
     preloader = Div(
-        Div(_class="spinner"),
+        Div(
+            Div(_class="spinner"),
+            P("Loading...", _class="loading-text"),
+            _class="preloader-content"
+        ),
         _class="preloader"
     )
 
@@ -122,6 +126,12 @@ def render_content():
             justify-content: center;
             align-items: center;
             z-index: 9999;
+            flex-direction: column;
+        }
+        .preloader-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .spinner {
             width: 50px;
@@ -130,6 +140,12 @@ def render_content():
             border-top: 5px solid cyan;
             border-radius: 50%;
             animation: spin 1s linear infinite;
+        }
+        .loading-text {
+            color: white;
+            font-size: 16px;
+            margin-top: 10px;
+            font-family: Arial, sans-serif;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
