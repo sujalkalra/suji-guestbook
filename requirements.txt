@@ -5,4 +5,3 @@ supabase==2.7.4
 sqlite-minutils
 fastapi
 uvicorn
-fasthtml
