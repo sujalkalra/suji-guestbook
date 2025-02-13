@@ -4,28 +4,26 @@ import pytz
 from supabase import create_client
 from dotenv import load_dotenv
 from fasthtml.common import *
+import time
 
 # Load environment variables
 load_dotenv()
 
 MAX_NAME_CHAR = 15
 MAX_MESSAGE_CHAR = 500
-TIMESTAMP_FMT = "%Y-%m-%d %I:%M:%S %p %Z"  # Updated to include timezone
+TIMESTAMP_FMT = "%Y-%m-%d %I:%M:%S %p %Z"
 
-# Supabase credentials from environment variables
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
-# Initialize supabase client
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# Create app with a favicon link
 app, rt = fast_app(
     hdrs=(Link(rel='icon', type='image/favicon.ico', href="/assets/me.ico"),),
 )
 
 def get_ist_time():
-    ist_tz = pytz.timezone("Asia/Kolkata")  # IST timezone
+    ist_tz = pytz.timezone("Asia/Kolkata")
     return datetime.now(ist_tz)
 
 def add_message(name, message):
@@ -57,14 +55,10 @@ def render_message_list():
     )
 
 def render_content():
-    preloader = Div("", id="preloader")
-    
-    script = Script(
-        """
-        window.onload = function() {
-            document.getElementById('preloader').style.display = 'none';
-        }
-        """
+    # Preloader
+    preloader = Div(
+        Div(_class="spinner"),
+        _class="preloader"
     )
 
     form = Form(
@@ -93,24 +87,47 @@ def render_content():
         hx_on__after_request="this.reset()",
     )
 
+    main_content = Div(
+        P(Em("Write something nice!")),
+        form,
+        Div(
+            "Made With 💖 by ",
+            A("Sujal", href="https://github.com/sujalkalra", target='_blank'),
+        ),
+        Hr(),
+        render_message_list(),
+        id="main-content",
+        style="display: none;"
+    )
+
+    script = Script(
+        """
+        document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(function() {
+                document.querySelector(".preloader").style.display = "none";
+                document.querySelector("#main-content").style.display = "block";
+            }, 7000);
+        });
+        """
+    )
+
     css_style = Style(
         """
-        #preloader {
+        .preloader {
             position: fixed;
             width: 100%;
             height: 100%;
-            background: #000;
+            background: black;
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            z-index: 9999;
         }
-        #preloader::after {
-            content: '';
+        .spinner {
             width: 50px;
             height: 50px;
             border: 5px solid white;
-            border-top-color: transparent;
+            border-top: 5px solid cyan;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -121,24 +138,15 @@ def render_content():
         """
     )
     
-    return Div(
-        css_style,
-        preloader,
-        script,
-        P(Em("Write something nice!")),
-        form,
-        Hr(),
-        render_message_list(),
-    )
+    return Div(css_style, preloader, main_content, script)
 
 @rt('/')
 def get():
-    return Titled("Suji's Guestbook 📖", render_content()),
+    return Titled("Suji's Guestbook 📚", render_content()),
 
 @rt("/submit-message", methods=["post"])
 def post(name: str, message: str):
     add_message(name, message)
     return render_message_list()
 
-# Serve the application
 serve()
