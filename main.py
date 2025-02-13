@@ -16,6 +16,7 @@ TIMESTAMP_FMT = "%Y-%m-%d %I:%M:%S %p %Z"  # Updated to include timezone
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
+
 # Initialize supabase client
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -57,6 +58,55 @@ def render_message_list():
     )
 
 def render_content():
+    # Preloader HTML
+    preloader_html = Div(
+        """
+        <div aria-label="Orange and tan hamster running in a metal wheel" role="img" class="wheel-and-hamster">
+            <div class="wheel"></div>
+            <div class="hamster">
+                <div class="hamster__body">
+                    <div class="hamster__head">
+                        <div class="hamster__ear"></div>
+                        <div class="hamster__eye"></div>
+                        <div class="hamster__nose"></div>
+                    </div>
+                    <div class="hamster__limb hamster__limb--fr"></div>
+                    <div class="hamster__limb hamster__limb--fl"></div>
+                    <div class="hamster__limb hamster__limb--br"></div>
+                    <div class="hamster__limb hamster__limb--bl"></div>
+                    <div class="hamster__tail"></div>
+                </div>
+            </div>
+            <div class="spoke"></div>
+        </div>
+        """,
+        _id="preloader"
+    )
+
+    # CSS for preloader
+    preloader_css = Style(
+        """
+        /* Preloader styles */
+        .wheel-and-hamster {
+            --dur: 1s;
+            position: relative;
+            width: 12em;
+            height: 12em;
+            font-size: 14px;
+        }
+        /* ... (include all your preloader CSS here) ... */
+        """
+    )
+
+    # JavaScript to hide preloader after 7 seconds
+    preloader_js = Script(
+        """
+        setTimeout(function() {
+            document.getElementById('preloader').style.display = 'none';
+        }, 7000);
+        """
+    )
+
     form = Form(
         Fieldset(
             Input(
@@ -154,6 +204,9 @@ def render_content():
     )
 
     return Div(
+        preloader_css,
+        preloader_html,
+        preloader_js,
         css_style,
         image_with_link,
         floating_button,  # Add floating button
