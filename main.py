@@ -4,7 +4,7 @@ import pytz
 from supabase import create_client
 from dotenv import load_dotenv
 from fasthtml.common import *
-from fasthtml.server import fast_app  # Added missing import
+from fasthtml.server import fast_app
 import time
 
 # Load environment variables
@@ -34,15 +34,22 @@ def add_message(name, message):
     if not name.strip() or not message.strip():
         return
     timestamp = get_ist_time().strftime(TIMESTAMP_FMT)
-    supabase.table("myGuestbook").insert(
-        {"name": name, "message": message, "timestamp": timestamp}
-    ).execute()
+    try:
+        supabase.table("myGuestbook").insert(
+            {"name": name, "message": message, "timestamp": timestamp}
+        ).execute()
+    except Exception as e:
+        print(f"Error inserting message: {e}")
 
 def get_messages():
-    response = (
-        supabase.table("myGuestbook").select("*").order("id", desc=True).execute()
-    )
-    return response.data if response and hasattr(response, 'data') else []
+    try:
+        response = (
+            supabase.table("myGuestbook").select("*").order("id", desc=True).execute()
+        )
+        return response.data if response and hasattr(response, 'data') else []
+    except Exception as e:
+        print(f"Error fetching messages: {e}")
+        return []
 
 def render_message(entry):
     return (
@@ -56,7 +63,7 @@ def render_message(entry):
 def render_message_list():
     messages = get_messages()
     return Div(
-        *[render_message(entry) for entry in messages],
+        *([render_message(entry) for entry in messages]),  # Corrected line
         id="message-list",
     )
 
@@ -105,7 +112,7 @@ def render_content():
         hx_post="/submit-message",
         hx_target="#message-list",
         hx_swap="outerHTML",
-        hx_on_after_request="this.reset()",  # Fixed HTMX attribute
+        hx_on_after_request="this.reset()",
     )
 
     main_content = Div(
@@ -191,7 +198,7 @@ def render_content():
         }
         """
     )
-    
+
     return Div(css_style, preloader, main_content, script)
 
 @rt('/')
@@ -203,4 +210,5 @@ def post(name: str, message: str):
     add_message(name, message)
     return render_message_list()
 
-serve()
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
