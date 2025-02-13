@@ -57,6 +57,16 @@ def render_message_list():
     )
 
 def render_content():
+    preloader = Div("", id="preloader")
+    
+    script = Script(
+        """
+        window.onload = function() {
+            document.getElementById('preloader').style.display = 'none';
+        }
+        """
+    )
+
     form = Form(
         Fieldset(
             Input(
@@ -83,86 +93,40 @@ def render_content():
         hx_on__after_request="this.reset()",
     )
 
-    # Image with link
-    image_with_link = A(
-        Img(
-            src="/assets/me.png",
-            alt="Guestbook Image",
-            _class="guestbook-image"
-        ),
-        href="https://github.com/sujalkalra",
-        target="_blank"
-    )
-
-    # Floating neon button
-    floating_button = A(
-        "Try New Version",
-        href="https://sujiguestbook2.vercel.app",  # Replace with actual link
-        _class="floating-neon-button"
-    )
-
-    # CSS Styling
     css_style = Style(
         """
-        /* Default styling for desktop and larger screens */
-        .guestbook-image {
+        #preloader {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #preloader::after {
+            content: '';
             width: 50px;
             height: 50px;
-            position: absolute;
-            top: 20px;
-            right: 40px;
+            border: 5px solid white;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
-
-        /* Center the image and make it larger on mobile */
-        @media (max-width: 600px) {
-            .guestbook-image {
-                width: 100px;
-                height: 100px;
-                position: static;
-                display: block;
-                margin-left: auto;
-                margin-right: auto;
-                margin-bottom: 10px;
-            }
-            .guestbook-header {
-                text-align: center;
-            }
-        }
-
-        /* Floating Neon Button */
-        .floating-neon-button {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: linear-gradient(90deg, #ff00ff, #00ffff);
-            color: white;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 14px;
-            padding: 12px 20px;
-            border: 2px solid white;
-            border-radius: 8px;
-            text-decoration: none;
-            box-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
-            transition: all 0.3s ease-in-out;
-        }
-
-        .floating-neon-button:hover {
-            box-shadow: 0 0 20px #ff00ff, 0 0 30px #00ffff;
-            transform: scale(1.1);
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         """
     )
-
+    
     return Div(
         css_style,
-        image_with_link,
-        floating_button,  # Add floating button
+        preloader,
+        script,
         P(Em("Write something nice!")),
         form,
-        Div(
-            "Made With 💖 by ",
-            A("Sujal", href="https://github.com/sujalkalra", target='_blank'),
-        ),
         Hr(),
         render_message_list(),
     )
