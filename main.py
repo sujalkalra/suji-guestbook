@@ -4,7 +4,8 @@ import pytz
 from supabase import create_client
 from dotenv import load_dotenv
 from fasthtml.common import *
-from fasthtml.server import fast_app
+from fasthtml.server import fast_app  # Added missing import
+import time
 
 # Load environment variables
 load_dotenv()
@@ -21,9 +22,7 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-app, rt = fast_app(
-    hdrs=[Link(rel='icon', type='image/x-icon', href="/assets/me.ico")]
-)
+app, rt = fast_app(hdrs=[Link(rel='icon', type='image/x-icon', href="/assets/me.ico")])
 
 def get_ist_time():
     ist_tz = pytz.timezone("Asia/Kolkata")
@@ -118,100 +117,6 @@ def render_content():
         style="display: none;"
     )
 
-    styles = Style("""
-        /* Preloader Styles */
-        .preloader {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            background: #121212;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-
-        .preloader-content {
-            text-align: center;
-            color: white;
-            font-size: 20px;
-        }
-
-        .loading-text {
-            margin-top: 10px;
-            font-family: Arial, sans-serif;
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        /* Message List Styles */
-        #message-list {
-            margin-top: 20px;
-        }
-
-        article {
-            background: #222;
-            color: #fff;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-        }
-
-        article header {
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        article p {
-            margin: 10px 0;
-            font-size: 16px;
-        }
-
-        article footer {
-            font-size: 12px;
-            color: #ccc;
-        }
-
-        /* Form Styles */
-        form {
-            background: #333;
-            padding: 15px;
-            border-radius: 5px;
-            color: white;
-            width: 100%;
-        }
-
-        input, button {
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-            border: none;
-            font-size: 16px;
-        }
-
-        input {
-            width: 95%;
-            background: #222;
-            color: white;
-        }
-
-        button {
-            background: #ff4081;
-            color: white;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        button:hover {
-            background: #e91e63;
-        }
-
-        /* Hide main content initially */
-        #main-content {
-            display: none;
-        }
-    """)
-
     script = Script(
         """
         document.addEventListener("DOMContentLoaded", function() {
@@ -223,7 +128,7 @@ def render_content():
         """
     )
     
-    return Div(styles, preloader, main_content, script)
+    return Div(preloader, main_content, script)
 
 @rt('/')
 def get():
