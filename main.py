@@ -176,5 +176,9 @@ def post(name: str, message: str):
     add_message(name, message)
     return render_message_list()
 
+@rt('/main-content')
+def main_content():
+    return HTMLResponse(content=open("main_content.html").read()),  # Serve your main content here
+
 # Serve the application
 serve()
