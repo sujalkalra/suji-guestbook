@@ -101,7 +101,7 @@ def render_content():
         hx_post="/submit-message",
         hx_target="#message-list",
         hx_swap="outerHTML",
-        hx_on_after_request="this.reset()"  # Fixed HTMX attribute
+        hx_on_after_request="this.reset()"  # Fixed HTMX attribute ordering
     )
 
     main_content = Div(
