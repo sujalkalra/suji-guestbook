@@ -4,33 +4,31 @@ import pytz
 from supabase import create_client
 from dotenv import load_dotenv
 from fasthtml.common import *
-from fasthtml.server import fast_app  # Added missing import
-import time
 
 # Load environment variables
 load_dotenv()
 
 MAX_NAME_CHAR = 15
 MAX_MESSAGE_CHAR = 500
-TIMESTAMP_FMT = "%Y-%m-%d %I:%M:%S %p %Z"
+TIMESTAMP_FMT = "%Y-%m-%d %I:%M:%S %p %Z"  # Updated to include timezone
 
+# Supabase credentials from environment variables
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
-if not SUPABASE_URL or not SUPABASE_KEY:
-    raise ValueError("Missing Supabase URL or API Key")
-
+# Initialize supabase client
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-app, rt = fast_app(hdrs=[Link(rel='icon', type='image/x-icon', href="/assets/me.ico")])
+# Create app with a favicon link
+app, rt = fast_app(
+    hdrs=(Link(rel='icon', type='image/favicon.ico', href="/assets/me.ico"),),
+)
 
 def get_ist_time():
-    ist_tz = pytz.timezone("Asia/Kolkata")
+    ist_tz = pytz.timezone("Asia/Kolkata")  # IST timezone
     return datetime.now(ist_tz)
 
 def add_message(name, message):
-    if not name.strip() or not message.strip():
-        return
     timestamp = get_ist_time().strftime(TIMESTAMP_FMT)
     supabase.table("myGuestbook").insert(
         {"name": name, "message": message, "timestamp": timestamp}
@@ -40,44 +38,25 @@ def get_messages():
     response = (
         supabase.table("myGuestbook").select("*").order("id", desc=True).execute()
     )
-    return response.data if response and hasattr(response, 'data') else []
+    return response.data
 
 def render_message(entry):
-    return Article(
-        Header(f"Name: {entry.get('name', 'Unknown')}"),
-        P(entry.get('message', '')),
-        Footer(Small(Em(f"Posted: {entry.get('timestamp', 'Unknown')}")))
+    return (
+        Article(
+            Header(f"Name: {entry['name']}"),
+            P(entry['message']),
+            Footer(Small(Em(f"Posted: {entry['timestamp']}"))),
+        )
     )
 
 def render_message_list():
     messages = get_messages()
     return Div(
-        *(render_message(entry) for entry in messages),
-        id="message-list"
+        *[render_message(entry) for entry in messages],
+        id="message-list",
     )
 
 def render_content():
-    preloader = Div(
-        Div(
-            Div(_class="hamster-container",
-                Div(_class="hamster",
-                    Div(_class="hamster-body",
-                        Div(_class="hamster-eye"),
-                        Div(_class="hamster-ear"),
-                        Div(_class="hamster-nose"),
-                        Div(_class="hamster-front-leg"),
-                        Div(_class="hamster-back-leg"),
-                        Div(_class="hamster-tail"),
-                    ),
-                ),
-                Div(_class="hamster-wheel"),
-            ),
-            P("Loading...", _class="loading-text"),
-            _class="preloader-content"
-        ),
-        _class="preloader"
-    )
-
     form = Form(
         Fieldset(
             Input(
@@ -101,10 +80,83 @@ def render_content():
         hx_post="/submit-message",
         hx_target="#message-list",
         hx_swap="outerHTML",
-        hx_on_after_request="this.reset()"  # Fixed HTMX attribute ordering
+        hx_on__after_request="this.reset()",
     )
 
-    main_content = Div(
+    # Image with link
+    image_with_link = A(
+        Img(
+            src="/assets/me.png",
+            alt="Guestbook Image",
+            _class="guestbook-image"
+        ),
+        href="https://github.com/sujalkalra",
+        target="_blank"
+    )
+
+    # Floating neon button
+    floating_button = A(
+        "Try New Version",
+        href="https://sujiguestbook2.vercel.app",  # Replace with actual link
+        _class="floating-neon-button"
+    )
+
+    # CSS Styling
+    css_style = Style(
+        """
+        /* Default styling for desktop and larger screens */
+        .guestbook-image {
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            top: 20px;
+            right: 40px;
+        }
+
+        /* Center the image and make it larger on mobile */
+        @media (max-width: 600px) {
+            .guestbook-image {
+                width: 100px;
+                height: 100px;
+                position: static;
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+                margin-bottom: 10px;
+            }
+            .guestbook-header {
+                text-align: center;
+            }
+        }
+
+        /* Floating Neon Button */
+        .floating-neon-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(90deg, #ff00ff, #00ffff);
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            padding: 12px 20px;
+            border: 2px solid white;
+            border-radius: 8px;
+            text-decoration: none;
+            box-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .floating-neon-button:hover {
+            box-shadow: 0 0 20px #ff00ff, 0 0 30px #00ffff;
+            transform: scale(1.1);
+        }
+        """
+    )
+
+    return Div(
+        css_style,
+        image_with_link,
+        floating_button,  # Add floating button
         P(Em("Write something nice!")),
         form,
         Div(
@@ -113,30 +165,16 @@ def render_content():
         ),
         Hr(),
         render_message_list(),
-        id="main-content",
-        style="display: none;"
     )
-
-    script = Script(
-        """
-        document.addEventListener("DOMContentLoaded", function() {
-            setTimeout(function() {
-                document.querySelector(".preloader").style.display = "none";
-                document.querySelector("#main-content").style.display = "block";
-            }, 3000);
-        });
-        """
-    )
-    
-    return Div(preloader, main_content, script)
 
 @rt('/')
 def get():
-    return Titled("Suji's Guestbook 📚", render_content())
+    return Titled("Suji's Guestbook 📖", render_content()),
 
 @rt("/submit-message", methods=["post"])
 def post(name: str, message: str):
     add_message(name, message)
     return render_message_list()
 
+# Serve the application
 serve()
