@@ -57,6 +57,12 @@ def render_message_list():
     )
 
 def render_content():
+    # Preloader
+    preloader = Div(
+        Div(_class="spinner"),  # Spinner animation
+        _class="preloader",
+    )
+
     form = Form(
         Fieldset(
             Input(
@@ -101,9 +107,45 @@ def render_content():
         _class="floating-neon-button"
     )
 
+    # JavaScript to hide the preloader
+    js_script = Script(
+        """
+        window.addEventListener("load", function () {
+            document.querySelector(".preloader").style.display = "none";
+            document.querySelector(".content").style.display = "block";
+        });
+        """
+    )
+
     # CSS Styling
     css_style = Style(
         """
+        /* Preloader Styling */
+        .preloader {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         /* Default styling for desktop and larger screens */
         .guestbook-image {
             width: 50px;
@@ -150,21 +192,31 @@ def render_content():
             box-shadow: 0 0 20px #ff00ff, 0 0 30px #00ffff;
             transform: scale(1.1);
         }
+
+        /* Hide content initially */
+        .content {
+            display: none;
+        }
         """
     )
 
     return Div(
         css_style,
-        image_with_link,
-        floating_button,  # Add floating button
-        P(Em("Write something nice!")),
-        form,
+        preloader,  # Add preloader
+        js_script,  # Add JavaScript
         Div(
-            "Made With 💖 by ",
-            A("Sujal", href="https://github.com/sujalkalra", target='_blank'),
+            image_with_link,
+            floating_button,  # Add floating button
+            P(Em("Write something nice!")),
+            form,
+            Div(
+                "Made With 💖 by ",
+                A("Sujal", href="https://github.com/sujalkalra", target='_blank'),
+            ),
+            Hr(),
+            render_message_list(),
+            _class="content"  # Wrapped in a hidden div
         ),
-        Hr(),
-        render_message_list(),
     )
 
 @rt('/')
