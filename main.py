@@ -8,25 +8,26 @@ from fasthtml.common import *
 # Load environment variables
 load_dotenv()
 
+# Constants
 MAX_NAME_CHAR = 15
 MAX_MESSAGE_CHAR = 500
-TIMESTAMP_FMT = "%Y-%m-%d %I:%M:%S %p %Z"  # Updated to include timezone
+TIMESTAMP_FMT = "%Y-%m-%d %I:%M:%S %p %Z"
 
-# Supabase credentials from environment variables
+# Supabase Credentials
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-
-# Initialize supabase client
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# Create app with a favicon link
+# FastAPI App
 app, rt = fast_app(
-    hdrs=(Link(rel='icon', type='image/favicon.ico', href="/assets/me.ico"),),
+    hdrs=(Link(rel='icon', type='image/x-icon', href="/assets/me.ico"),)
 )
 
+# Global timezone object (optimization)
+IST_TZ = pytz.timezone("Asia/Kolkata")
+
 def get_ist_time():
-    ist_tz = pytz.timezone("Asia/Kolkata")  # IST timezone
-    return datetime.now(ist_tz)
+    return datetime.now(IST_TZ)
 
 def add_message(name, message):
     timestamp = get_ist_time().strftime(TIMESTAMP_FMT)
@@ -34,50 +35,37 @@ def add_message(name, message):
         {"name": name, "message": message, "timestamp": timestamp}
     ).execute()
 
-def get_messages():
+def get_messages(limit=10):  # Fetch only latest 10 messages
     response = (
-        supabase.table("myGuestbook").select("*").order("id", desc=True).execute()
+        supabase.table("myGuestbook")
+        .select("*")
+        .order("id", desc=True)
+        .limit(limit)  # Limits DB load
+        .execute()
     )
     return response.data
 
 def render_message(entry):
-    return (
-        Article(
-            Header(f"Name: {entry['name']}"),
-            P(entry['message']),
-            Footer(Small(Em(f"Posted: {entry['timestamp']}"))),
-        )
+    return Article(
+        Header(f"Name: {entry['name']}"),
+        P(entry['message']),
+        Footer(Small(Em(f"Posted: {entry['timestamp']}"))),
     )
 
 def render_message_list():
     messages = get_messages()
-    return Div(
-        *[render_message(entry) for entry in messages],
-        id="message-list",
-    )
+    return Div(*[render_message(entry) for entry in messages], id="message-list")
 
 def render_content():
-    # Preloader
-    preloader = Div(
-        Div(_class="spinner"),  # Spinner animation
-        _class="preloader",
-    )
-
     form = Form(
         Fieldset(
             Input(
-                type="text",
-                name="name",
-                placeholder="Name",
-                required=True,
-                maxlength=MAX_NAME_CHAR,
+                type="text", name="name", placeholder="Name",
+                required=True, maxlength=MAX_NAME_CHAR
             ),
             Input(
-                type="text",
-                name="message",
-                placeholder="Message",
-                required=True,
-                maxlength=MAX_MESSAGE_CHAR,
+                type="text", name="message", placeholder="Message",
+                required=True, maxlength=MAX_MESSAGE_CHAR
             ),
             Button("Submit", type="submit"),
             role="group",
@@ -89,134 +77,42 @@ def render_content():
         hx_on__after_request="this.reset()",
     )
 
-    # Image with link
+    # Optimized Image with Lazy Loading
     image_with_link = A(
         Img(
-            src="/assets/me.png",
-            alt="Guestbook Image",
-            _class="guestbook-image"
+            src="/assets/me.png", alt="Guestbook Image",
+            _class="guestbook-image", loading="lazy"
         ),
-        href="https://github.com/sujalkalra",
-        target="_blank"
+        href="https://github.com/sujalkalra", target="_blank"
     )
 
-    # Floating neon button
     floating_button = A(
-        "Try New Version",
-        href="https://sujiguestbook2.vercel.app",  # Replace with actual link
+        "Try New Version", href="https://sujiguestbook2.vercel.app",
         _class="floating-neon-button"
     )
 
-    # JavaScript to hide the preloader
-    js_script = Script(
-        """
-        window.addEventListener("load", function () {
-            document.querySelector(".preloader").style.display = "none";
-            document.querySelector(".content").style.display = "block";
-        });
-        """
-    )
-
-    # CSS Styling
+    # Optimized CSS (minified)
     css_style = Style(
         """
-        /* Preloader Styling */
-        .preloader {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            background: black;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 255, 255, 0.3);
-            border-top: 5px solid white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Default styling for desktop and larger screens */
-        .guestbook-image {
-            width: 50px;
-            height: 50px;
-            position: absolute;
-            top: 20px;
-            right: 40px;
-        }
-
-        /* Center the image and make it larger on mobile */
-        @media (max-width: 600px) {
-            .guestbook-image {
-                width: 100px;
-                height: 100px;
-                position: static;
-                display: block;
-                margin-left: auto;
-                margin-right: auto;
-                margin-bottom: 10px;
-            }
-            .guestbook-header {
-                text-align: center;
-            }
-        }
-
-        /* Floating Neon Button */
-        .floating-neon-button {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: linear-gradient(90deg, #ff00ff, #00ffff);
-            color: white;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 14px;
-            padding: 12px 20px;
-            border: 2px solid white;
-            border-radius: 8px;
-            text-decoration: none;
-            box-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
-            transition: all 0.3s ease-in-out;
-        }
-
-        .floating-neon-button:hover {
-            box-shadow: 0 0 20px #ff00ff, 0 0 30px #00ffff;
-            transform: scale(1.1);
-        }
-
-        /* Hide content initially */
-        .content {
-            display: none;
-        }
+        .guestbook-image { width: 50px; height: 50px; position: absolute; top: 20px; right: 40px; }
+        @media (max-width: 600px) { .guestbook-image { width: 100px; height: 100px; position: static; display: block; margin: auto 10px; } }
+        .floating-neon-button { position: fixed; bottom: 20px; right: 20px; background: linear-gradient(90deg, #ff00ff, #00ffff);
+            color: white; font-family: 'Orbitron', sans-serif; font-size: 14px; padding: 12px 20px;
+            border: 2px solid white; border-radius: 8px; text-decoration: none;
+            box-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff; transition: all 0.3s ease-in-out; }
+        .floating-neon-button:hover { box-shadow: 0 0 20px #ff00ff, 0 0 30px #00ffff; transform: scale(1.1); }
         """
     )
 
     return Div(
         css_style,
-        preloader,  # Add preloader
-        js_script,  # Add JavaScript
-        Div(
-            image_with_link,
-            floating_button,  # Add floating button
-            P(Em("Write something nice!")),
-            form,
-            Div(
-                "Made With 💖 by ",
-                A("Sujal", href="https://github.com/sujalkalra", target='_blank'),
-            ),
-            Hr(),
-            render_message_list(),
-            _class="content"  # Wrapped in a hidden div
-        ),
+        image_with_link,
+        floating_button,
+        P(Em("Write something nice!")),
+        form,
+        Div("Made With 💖 by ", A("Sujal", href="https://github.com/sujalkalra", target='_blank')),
+        Hr(),
+        render_message_list(),
     )
 
 @rt('/')
@@ -230,7 +126,7 @@ def post(name: str, message: str):
 
 @rt('/main-content')
 def main_content():
-    return HTMLResponse(content=open("main_content.html").read()),  # Serve your main content here
+    return HTMLResponse(content=open("main_content.html").read())
 
-# Serve the application
+# Run the optimized app
 serve()
