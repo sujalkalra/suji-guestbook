@@ -10,7 +10,7 @@ load_dotenv()
 
 # Constants
 MAX_NAME_CHAR = 15
-MAX_MESSAGE_CHAR = 50000
+MAX_MESSAGE_CHAR = inf
 TIMESTAMP_FMT = "%Y-%m-%d %I:%M:%S %p %Z"
 
 # Supabase Credentials
