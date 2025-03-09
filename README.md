@@ -35,3 +35,7 @@ pip install python-fasthtml
     </a>
 </div>
 
+## components and tools:     
+<img src="https://skillicons.dev/icons?i=python,supabase" height="50"/>
+
+
