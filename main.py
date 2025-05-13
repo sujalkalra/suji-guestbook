@@ -206,7 +206,7 @@ def index():
         _class="site-footer glass-card"
     )
 
-    css_style = Style('''
+    css_style = Style("""
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Nunito:wght@400;700&display=swap');
     :root {
         --primary: #5f6fff;
@@ -529,4 +529,4 @@ def index():
         margin-top: 0.4rem;
         font-size: 1.08rem;
         font-family: 'Inter', 'Nunito', sans-serif;
-    }''')
+    }""")
