@@ -428,17 +428,7 @@ def index():
     .refresh-icon { color: var(--primary); cursor: pointer; font-size: 1.1rem; transition: var(--transition);}
     .refresh-icon:hover { color: var(--accent); transform: rotate(180deg);}
     .message-list-container { display: flex; flex-direction: column; gap: 1.2rem; }
-    .message-card {
-        background: var(--glass);
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        padding: 1.2rem 1.5rem;
-        border: 1px solid var(--border);
-        display: flex; flex-direction: column;
-        animation: fadeIn 0.5s;
-        transition: var(--transition);
-        font-family: 'Inter', 'Nunito', sans-serif;
-    }
+    
     .message-header-flex { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.3rem;}
     .avatar-circle {
         width: 48px;
