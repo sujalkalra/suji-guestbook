@@ -95,6 +95,7 @@ def render_theme_toggle():
             Span(
                 Span(I(_class="fas fa-moon"), _class="toggle-icon toggle-moon"),
                 Span(I(_class="fas fa-sun"), _class="toggle-icon toggle-sun"),
+                Span(_class="toggle-knob"),  # <-- Add this for the knob
                 _class="theme-toggle-slider"
             ),
             _class="theme-toggle"
@@ -205,7 +206,7 @@ def index():
         _class="site-footer glass-card"
     )
 
-    css_style = Style("""
+    css_style = Style('''
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Nunito:wght@400;700&display=swap');
     :root {
         --primary: #5f6fff;
@@ -293,6 +294,10 @@ def index():
         text-shadow: 0 2px 8px rgba(95,111,255,0.09);
     }
     .theme-toggle-container { display: flex; align-items: center; }
+    ### Update the Toggle CSS
+    
+    Add or update the following CSS in your `css_style` block:
+    ```css
     .theme-toggle {
         position: relative;
         width: 52px;
@@ -317,33 +322,49 @@ def index():
         padding: 0 8px;
     }
     .toggle-icon {
-        font-size: 1.25rem;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.15rem;
         color: #fff;
         opacity: 0.7;
         transition: opacity 0.3s;
         z-index: 2;
+        pointer-events: none;
     }
-    .toggle-moon { opacity: 1; }
-    .toggle-sun { opacity: 0.7; }
-    .theme-toggle-input:checked + .theme-toggle-slider .toggle-moon { opacity: 0.5; }
-    .theme-toggle-input:checked + .theme-toggle-slider .toggle-sun { opacity: 1; }
-    .theme-toggle-slider:before {
-        content: "";
+    .toggle-moon {
+        left: 10px;
+        opacity: 1;
+        transition: opacity 0.3s;
+    }
+    .toggle-sun {
+        right: 10px;
+        opacity: 0.5;
+        transition: opacity 0.3s;
+    }
+    .theme-toggle-input:checked + .theme-toggle-slider .toggle-moon {
+        opacity: 0.5;
+    }
+    .theme-toggle-input:checked + .theme-toggle-slider .toggle-sun {
+        opacity: 1;
+    }
+    .toggle-knob {
         position: absolute;
-        left: 4px;
         top: 4px;
+        left: 4px;
         width: 20px;
         height: 20px;
         background: linear-gradient(135deg, var(--primary-light), var(--primary));
         border-radius: 50%;
         transition: transform 0.3s cubic-bezier(.4,0,.2,1), background 0.3s;
         box-shadow: 0 2px 8px rgba(95,111,255,0.13);
-        z-index: 1;
+        z-index: 3;
     }
-    .theme-toggle-input:checked + .theme-toggle-slider:before {
-        transform: translateX(20px);
+    .theme-toggle-input:checked + .theme-toggle-slider .toggle-knob {
+        transform: translateX(24px);
         background: linear-gradient(135deg, var(--primary-dark), var(--accent));
     }
+    ```
     .meta-separator {
         margin: 0 0.5em;
         color: var(--muted);
@@ -425,154 +446,87 @@ def index():
     }
     .message-header-flex { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.3rem;}
     .avatar-circle {
-        width: 44px; height: 44px; border-radius: 50%;
-        background: linear-gradient(135deg, var(--primary-light), var(--primary));
-        display: flex; align-items: center; justify-content: center;
-        font-weight: 800; font-size: 1.2rem; color: #fff; box-shadow: 0 2px 8px rgba(95,111,255,0.09);
-        font-family: 'Nunito', 'Inter', sans-serif;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #a1b6ff 0%, #5f6fff 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        font-size: 1.3rem;
+        color: #fff;
+        box-shadow: 0 2px 12px rgba(95,111,255,0.12);
+        margin-right: 0.7rem;
+        transition: box-shadow 0.2s;
     }
-    .message-meta { flex-grow: 1; }
-    .message-author { font-weight: 700; color: var(--primary); font-size: 1.09rem;}
-    .message-time { font-size: 0.93rem; color: var(--muted);}
-    .message-content { line-height: 1.7; color: var(--text); margin-top: 0.2rem;}
-    .empty-message {
-        text-align: center; padding: 2.5rem 1.5rem;
-        background: var(--glass); border-radius: var(--radius);
-        border: 1px dashed var(--border); color: var(--muted);
-        display: flex; flex-direction: column; align-items: center; gap: 1rem;
-        font-family: 'Nunito', 'Inter', sans-serif;
+    .avatar-circle:hover {
+        box-shadow: 0 4px 24px rgba(95,111,255,0.18);
     }
-    .empty-icon { font-size: 2.5rem; color: var(--muted);}
-    .empty-title { color: var(--primary); font-size: 1.2rem;}
-    .empty-text { color: var(--muted);}
-    .stats-section { margin: 2.5rem auto 2rem auto; max-width: 700px;}
-    .stats-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.2rem;}
-    .stat-item {
-        background: var(--card);
-        border-radius: var(--radius);
-        padding: 1.2rem;
-        box-shadow: var(--shadow);
+    .avatar-initials {
+        font-family: 'Nunito', 'Inter', sans-serif;
+        font-size: 1.2em;
+        font-weight: 900;
+        letter-spacing: 0.02em;
+    }
+    
+    .message-card {
+        background: var(--glass);
+        border-radius: 22px;
+        box-shadow: 0 4px 24px rgba(95,111,255,0.10);
+        padding: 1.4rem 1.7rem;
         border: 1px solid var(--border);
         display: flex;
-        align-items: center;
-        gap: 1rem;
-        transition: var(--transition);
-        font-family: 'Nunito', 'Inter', sans-serif;
+        flex-direction: column;
+        transition: box-shadow 0.2s, border 0.2s;
+        margin-bottom: 0.7rem;
     }
-    .stat-item:hover {
-        box-shadow: 0 8px 24px rgba(95,111,255,0.13);
-        transform: translateY(-2px);
+    .message-card:hover {
+        box-shadow: 0 8px 32px rgba(95,111,255,0.16);
+        border: 1.5px solid var(--primary-light);
     }
-    .stat-icon {
-        font-size: 1.7rem;
-        color: var(--primary);
-        background: var(--primary-light);
-        border-radius: 50%;
-        width: 38px;
-        height: 38px;
+    
+    .message-header-flex {
         display: flex;
         align-items: center;
-        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 0.3rem;
     }
-    .stat-number {
-        font-size: 1.2rem;
+    
+    .message-meta {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+    }
+    
+    .message-author {
         font-weight: 800;
         color: var(--primary);
+        font-size: 1.13rem;
         font-family: 'Nunito', 'Inter', sans-serif;
+        margin-right: 0.2em;
     }
-    .stat-label {
+    
+    .meta-separator {
+        margin: 0 0.5em;
         color: var(--muted);
-        font-size: 0.97rem;
-        font-family: 'Nunito', 'Inter', sans-serif;
-    }
-    .site-footer {
-        background: var(--card);
-        padding: 2rem 0 1rem 0;
-        border-top: 1px solid var(--border);
-        margin-top: 2rem;
-    }
-    .footer-content {
-        max-width: 900px;
-        margin: 0 auto;
-        text-align: center;
-        font-family: 'Nunito', 'Inter', sans-serif;
-    }
-    .footer-link, .social-link {
-        color: var(--primary);
         font-weight: 700;
-        margin: 0 0.3rem;
-        transition: var(--transition);
-        text-decoration: none;
-        font-family: 'Nunito', 'Inter', sans-serif;
+        font-size: 1.2em;
+        user-select: none;
     }
-    .footer-link:hover, .social-link:hover {
-        color: var(--accent);
-        text-decoration: underline;
-    }
-    .heart {
-        color: #ff4d6d;
-        animation: heartbeat 1.5s infinite;
-        display: inline-block;
-        margin: 0 2px;
-    }
-    .social-links {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-        margin: 1rem 0;
-    }
-    .copyright {
+    
+    .message-time {
+        font-size: 0.98rem;
         color: var(--muted);
-        font-size: 0.97rem;
-        margin-top: 0.5rem;
-        font-family: 'Nunito', 'Inter', sans-serif;
+        font-weight: 500;
+        font-family: 'Inter', 'Nunito', sans-serif;
     }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
-    @media (max-width: 600px) {
-        .header-content, .footer-content, .guestbook-form, .messages-section, .stats-section {
-            max-width: 100vw;
-            padding: 0.7rem;
-        }
-        .site-header, .site-footer {
-            padding-left: 0.2rem;
-            padding-right: 0.2rem;
-        }
-        .form-fields {
-            gap: 0.7rem;
-        }
-        .message-card, .stat-item {
-            padding: 0.8rem 0.7rem;
-        }
-        .site-title { font-size: 1.5rem; }
-    }
-    """)
-
-    # --- Add this return statement at the end of index() ---
-    return Div(
-        header,
-        Div(
-            P("Welcome to my guestbook! Leave a message and connect with others. Your thoughts and feedback are greatly appreciated!", _class="welcome-text"),
-            form,
-            messages_section,
-            stats_section,
-            _class="container"
-        ),
-        footer,
-        css_style
-    )
-
-@app.post("/submit-message")
-def submit_message(name: str = Form(...), message: str = Form(...)):
-    if len(name) > MAX_NAME_CHAR:
-        name = name[:MAX_NAME_CHAR]
-    if len(message) > MAX_MESSAGE_CHAR:
-        message = message[:MAX_MESSAGE_CHAR]
-    add_message(name, message)
-    return render_message_list()
-
-@app.get("/refresh-messages")
-def refresh_messages():
-    return render_message_list()
-
-serve()
+    
+    .message-content {
+        line-height: 1.8;
+        color: var(--text);
+        margin-top: 0.4rem;
+        font-size: 1.08rem;
+        font-family: 'Inter', 'Nunito', sans-serif;
+    }''')
