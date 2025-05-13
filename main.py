@@ -486,4 +486,17 @@ def index():
     }
     """)
 
-    # ... rest of your return statement and routes remain unchanged ...
+@app.post("/submit-message")
+def submit_message(name: str = Form(...), message: str = Form(...)):
+    if len(name) > MAX_NAME_CHAR:
+        name = name[:MAX_NAME_CHAR]
+    if len(message) > MAX_MESSAGE_CHAR:
+        message = message[:MAX_MESSAGE_CHAR]
+    add_message(name, message)
+    return render_message_list()
+
+@app.get("/refresh-messages")
+def refresh_messages():
+    return render_message_list()
+
+serve()
