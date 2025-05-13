@@ -48,6 +48,7 @@ def render_message(entry):
             render_avatar(entry['name']),
             Div(
                 Span(entry['name'], _class="message-author"),
+                Span("·", _class="meta-separator"),  # <-- Add this separator
                 Span(entry['timestamp'], _class="message-time"),
                 _class="message-meta"
             ),
@@ -294,7 +295,7 @@ def index():
     .theme-toggle-container { display: flex; align-items: center; }
     .theme-toggle {
         position: relative;
-        width: 48px;
+        width: 52px;
         height: 28px;
         display: inline-block;
     }
@@ -313,10 +314,10 @@ def index():
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 6px;
+        padding: 0 8px;
     }
     .toggle-icon {
-        font-size: 1.2rem;
+        font-size: 1.25rem;
         color: #fff;
         opacity: 0.7;
         transition: opacity 0.3s;
@@ -342,6 +343,13 @@ def index():
     .theme-toggle-input:checked + .theme-toggle-slider:before {
         transform: translateX(20px);
         background: linear-gradient(135deg, var(--primary-dark), var(--accent));
+    }
+    .meta-separator {
+        margin: 0 0.5em;
+        color: var(--muted);
+        font-weight: 400;
+        font-size: 1.1em;
+        user-select: none;
     }
     .guestbook-form {
         margin: 0 auto 2.5rem auto;
