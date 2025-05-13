@@ -486,6 +486,20 @@ def index():
     }
     """)
 
+    # --- Add this return statement at the end of index() ---
+    return Div(
+        header,
+        Div(
+            P("Welcome to my guestbook! Leave a message and connect with others. Your thoughts and feedback are greatly appreciated!", _class="welcome-text"),
+            form,
+            messages_section,
+            stats_section,
+            _class="container"
+        ),
+        footer,
+        css_style
+    )
+
 @app.post("/submit-message")
 def submit_message(name: str = Form(...), message: str = Form(...)):
     if len(name) > MAX_NAME_CHAR:
