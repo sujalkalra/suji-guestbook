@@ -206,312 +206,321 @@ def index():
         _class="site-footer glass-card"
     )
 
-    css_style = Style("""
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Nunito:wght@400;700&display=swap');
-    :root {
-        --primary: #5f6fff;
-        --primary-light: #a1b6ff;
-        --primary-dark: #2a2e6e;
-        --accent: #ff7eb3;
-        --bg: #f5f7fa;
-        --card: #fff;
-        --glass: rgba(255,255,255,0.72);
-        --glass-dark: rgba(35,41,58,0.72);
-        --text: #23293a;
-        --muted: #7a7f9a;
-        --border: #e0e0e0;
-        --shadow: 0 8px 32px rgba(95,111,255,0.13);
-        --radius: 20px;
-        --transition: all 0.22s cubic-bezier(.4,0,.2,1);
-    }
-    [data-theme="dark"] {
-        --primary: #a1b6ff;
-        --primary-light: #5f6fff;
-        --primary-dark: #23293a;
-        --accent: #ffb86b;
-        --bg: #181c24;
-        --card: #23293a;
-        --glass: rgba(35,41,58,0.82);
-        --glass-dark: rgba(35,41,58,0.92);
-        --text: #f6f6fa;
-        --muted: #b0b4c1;
-        --border: #333;
-        --shadow: 0 8px 32px rgba(95,111,255,0.18);
-    }
-    body {
-        background: linear-gradient(135deg, var(--bg) 60%, var(--primary-light) 100%);
-        color: var(--text);
-        font-family: 'Inter', 'Nunito', 'Poppins', sans-serif;
-        min-height: 100vh;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: stretch;
-        letter-spacing: 0.01em;
-    }
-    .glass-card {
-        background: var(--glass);
-        box-shadow: var(--shadow);
-        border-radius: var(--radius);
-        border: 1px solid var(--border);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-    }
-    .site-header {
-        margin-bottom: 2rem;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        border-bottom: 1px solid var(--border);
-        padding: 1.7rem 0 1.2rem 0;
-        background: var(--glass);
-        box-shadow: 0 2px 16px rgba(95,111,255,0.07);
-    }
-    .header-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 0 2rem;
-    }
-    .title-container {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-    .header-icon {
-        font-size: 2.1rem;
-        color: var(--primary);
-        filter: drop-shadow(0 2px 8px var(--primary-light));
-    }
-    .site-title {
-        color: var(--primary);
-        font-size: 2.3rem;
-        font-weight: 800;
-        letter-spacing: -1.5px;
-        font-family: 'Nunito', 'Inter', sans-serif;
-        text-shadow: 0 2px 8px rgba(95,111,255,0.09);
-    }
-    .theme-toggle-container { display: flex; align-items: center; }
-    .theme-toggle {
-        position: relative;
-        width: 52px;
-        height: 28px;
-        display: inline-block;
-    }
-    .theme-toggle-input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-    .theme-toggle-slider {
-        background: var(--muted);
-        border-radius: 34px;
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        cursor: pointer;
-        transition: background 0.3s;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 8px;
-    }
-    .toggle-icon {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 1.15rem;
-        color: #fff;
-        opacity: 0.7;
-        transition: opacity 0.3s;
-        z-index: 2;
-        pointer-events: none;
-    }
-    .toggle-moon {
-        left: 10px;
-        opacity: 1;
-        transition: opacity 0.3s;
-    }
-    .toggle-sun {
-        right: 10px;
-        opacity: 0.5;
-        transition: opacity 0.3s;
-    }
-    .theme-toggle-input:checked + .theme-toggle-slider .toggle-moon {
-        opacity: 0.5;
-    }
-    .theme-toggle-input:checked + .theme-toggle-slider .toggle-sun {
-        opacity: 1;
-    }
-    .toggle-knob {
-        position: absolute;
-        top: 4px;
-        left: 4px;
-        width: 20px;
-        height: 20px;
-        background: linear-gradient(135deg, var(--primary-light), var(--primary));
-        border-radius: 50%;
-        transition: transform 0.3s cubic-bezier(.4,0,.2,1), background 0.3s;
-        box-shadow: 0 2px 8px rgba(95,111,255,0.13);
-        z-index: 3;
-    }
-    .theme-toggle-input:checked + .theme-toggle-slider .toggle-knob {
-        transform: translateX(24px);
-        background: linear-gradient(135deg, var(--primary-dark), var(--accent));
-    }
-    .meta-separator {
-        margin: 0 0.5em;
-        color: var(--muted);
-        font-weight: 400;
-        font-size: 1.1em;
-        user-select: none;
-    }
-    .guestbook-form {
-        margin: 0 auto 2.5rem auto;
-        max-width: 500px;
-        padding: 2.2rem 2.5rem 1.7rem 2.5rem;
-        transition: var(--transition);
-        font-family: 'Nunito', 'Inter', sans-serif;
-        font-size: 1.08rem;
-    }
-    .form-fields { display: flex; flex-direction: column; gap: 1.2rem; }
-    .form-input, .form-textarea {
-        width: 100%; padding: 1rem 1.2rem;
-        border: 1.5px solid var(--border);
-        border-radius: var(--radius);
-        background: var(--glass-dark);
-        color: var(--text);
-        font-size: 1.08rem;
-        font-family: inherit;
-        transition: var(--transition);
-        margin-bottom: 0.2rem;
-        box-shadow: 0 2px 8px rgba(95,111,255,0.04);
-    }
-    .form-input:focus, .form-textarea:focus {
-        outline: none;
-        border-color: var(--accent);
-        box-shadow: 0 0 0 2px var(--primary-light);
-    }
-    .textarea-footer {
-        display: flex; justify-content: flex-end; font-size: 0.97rem;
-        color: var(--muted);
-    }
-    .char-limit-exceeded { color: #ff4d6d; }
-    .submit-button {
-        background: linear-gradient(90deg, var(--primary), var(--accent));
-        color: #fff;
-        border: none;
-        border-radius: var(--radius);
-        padding: 0.9rem 1.7rem;
-        font-weight: 700;
-        font-size: 1.15rem;
-        cursor: pointer;
-        box-shadow: var(--shadow);
-        transition: var(--transition);
-        margin-top: 0.5rem;
-        display: flex; align-items: center; gap: 0.7rem;
-        letter-spacing: 0.5px;
-        position: relative;
-        overflow: hidden;
-        font-family: 'Nunito', 'Inter', sans-serif;
-    }
-    .submit-button:hover:not(:disabled) {
-        background: linear-gradient(90deg, var(--primary-dark), var(--primary));
-        transform: translateY(-2px) scale(1.04);
-        box-shadow: 0 8px 24px rgba(95,111,255,0.13);
-    }
-    .submit-button:disabled { opacity: 0.6; cursor: not-allowed; }
-    .messages-section { margin: 2.5rem auto 2rem auto; max-width: 700px; }
-    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; }
-    .section-title { font-size: 1.35rem; color: var(--primary); font-weight: 700; font-family: 'Nunito', 'Inter', sans-serif;}
-    .refresh-icon { color: var(--primary); cursor: pointer; font-size: 1.1rem; transition: var(--transition);}
-    .refresh-icon:hover { color: var(--accent); transform: rotate(180deg);}
-    .message-list-container { display: flex; flex-direction: column; gap: 1.2rem; }
-    
-    .message-header-flex { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.3rem;}
-    .avatar-circle {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #a1b6ff 0%, #5f6fff 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 900;
-        font-size: 1.3rem;
-        color: #fff;
-        box-shadow: 0 2px 12px rgba(95,111,255,0.12);
-        margin-right: 0.7rem;
-        transition: box-shadow 0.2s;
-    }
-    .avatar-circle:hover {
-        box-shadow: 0 4px 24px rgba(95,111,255,0.18);
-    }
-    .avatar-initials {
-        font-family: 'Nunito', 'Inter', sans-serif;
-        font-size: 1.2em;
-        font-weight: 900;
-        letter-spacing: 0.02em;
-    }
-    
-    .message-card {
-        background: var(--glass);
-        border-radius: 22px;
-        box-shadow: 0 4px 24px rgba(95,111,255,0.10);
-        padding: 1.4rem 1.7rem;
-        border: 1px solid var(--border);
-        display: flex;
-        flex-direction: column;
-        transition: box-shadow 0.2s, border 0.2s;
-        margin-bottom: 0.7rem;
-    }
-    .message-card:hover {
-        box-shadow: 0 8px 32px rgba(95,111,255,0.16);
-        border: 1.5px solid var(--primary-light);
-    }
-    
-    .message-header-flex {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 0.3rem;
-    }
-    
-    .message-meta {
-        flex-grow: 1;
-        display: flex;
-        align-items: center;
-        gap: 0.5em;
-    }
-    
-    .message-author {
-        font-weight: 800;
-        color: var(--primary);
-        font-size: 1.13rem;
-        font-family: 'Nunito', 'Inter', sans-serif;
-        margin-right: 0.2em;
-    }
-    
-    .meta-separator {
-        margin: 0 0.5em;
-        color: var(--muted);
-        font-weight: 700;
-        font-size: 1.2em;
-        user-select: none;
-    }
-    
-    .message-time {
-        font-size: 0.98rem;
-        color: var(--muted);
-        font-weight: 500;
-        font-family: 'Inter', 'Nunito', sans-serif;
-    }
-    
-    .message-content {
-        line-height: 1.8;
-        color: var(--text);
-        margin-top: 0.4rem;
-        font-size: 1.08rem;
-        font-family: 'Inter', 'Nunito', sans-serif;
-    }""")
+    # Return the full page content
+    return [
+        css_style,
+        header,
+        form,
+        messages_section,
+        stats_section,
+        footer
+    ]
+
+css_style = Style("""
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Nunito:wght@400;700&display=swap');
+:root {
+    --primary: #5f6fff;
+    --primary-light: #a1b6ff;
+    --primary-dark: #2a2e6e;
+    --accent: #ff7eb3;
+    --bg: #f5f7fa;
+    --card: #fff;
+    --glass: rgba(255,255,255,0.72);
+    --glass-dark: rgba(35,41,58,0.72);
+    --text: #23293a;
+    --muted: #7a7f9a;
+    --border: #e0e0e0;
+    --shadow: 0 8px 32px rgba(95,111,255,0.13);
+    --radius: 20px;
+    --transition: all 0.22s cubic-bezier(.4,0,.2,1);
+}
+[data-theme="dark"] {
+    --primary: #a1b6ff;
+    --primary-light: #5f6fff;
+    --primary-dark: #23293a;
+    --accent: #ffb86b;
+    --bg: #181c24;
+    --card: #23293a;
+    --glass: rgba(35,41,58,0.82);
+    --glass-dark: rgba(35,41,58,0.92);
+    --text: #f6f6fa;
+    --muted: #b0b4c1;
+    --border: #333;
+    --shadow: 0 8px 32px rgba(95,111,255,0.18);
+}
+body {
+    background: linear-gradient(135deg, var(--bg) 60%, var(--primary-light) 100%);
+    color: var(--text);
+    font-family: 'Inter', 'Nunito', 'Poppins', sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    letter-spacing: 0.01em;
+}
+.glass-card {
+    background: var(--glass);
+    box-shadow: var(--shadow);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+.site-header {
+    margin-bottom: 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid var(--border);
+    padding: 1.7rem 0 1.2rem 0;
+    background: var(--glass);
+    box-shadow: 0 2px 16px rgba(95,111,255,0.07);
+}
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+.title-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.header-icon {
+    font-size: 2.1rem;
+    color: var(--primary);
+    filter: drop-shadow(0 2px 8px var(--primary-light));
+}
+.site-title {
+    color: var(--primary);
+    font-size: 2.3rem;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    font-family: 'Nunito', 'Inter', sans-serif;
+    text-shadow: 0 2px 8px rgba(95,111,255,0.09);
+}
+.theme-toggle-container { display: flex; align-items: center; }
+.theme-toggle {
+    position: relative;
+    width: 52px;
+    height: 28px;
+    display: inline-block;
+}
+.theme-toggle-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.theme-toggle-slider {
+    background: var(--muted);
+    border-radius: 34px;
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    cursor: pointer;
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px;
+}
+.toggle-icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.15rem;
+    color: #fff;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+    z-index: 2;
+    pointer-events: none;
+}
+.toggle-moon {
+    left: 10px;
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+.toggle-sun {
+    right: 10px;
+    opacity: 0.5;
+    transition: opacity 0.3s;
+}
+.theme-toggle-input:checked + .theme-toggle-slider .toggle-moon {
+    opacity: 0.5;
+}
+.theme-toggle-input:checked + .theme-toggle-slider .toggle-sun {
+    opacity: 1;
+}
+.toggle-knob {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, var(--primary-light), var(--primary));
+    border-radius: 50%;
+    transition: transform 0.3s cubic-bezier(.4,0,.2,1), background 0.3s;
+    box-shadow: 0 2px 8px rgba(95,111,255,0.13);
+    z-index: 3;
+}
+.theme-toggle-input:checked + .theme-toggle-slider .toggle-knob {
+    transform: translateX(24px);
+    background: linear-gradient(135deg, var(--primary-dark), var(--accent));
+}
+.meta-separator {
+    margin: 0 0.5em;
+    color: var(--muted);
+    font-weight: 400;
+    font-size: 1.1em;
+    user-select: none;
+}
+.guestbook-form {
+    margin: 0 auto 2.5rem auto;
+    max-width: 500px;
+    padding: 2.2rem 2.5rem 1.7rem 2.5rem;
+    transition: var(--transition);
+    font-family: 'Nunito', 'Inter', sans-serif;
+    font-size: 1.08rem;
+}
+.form-fields { display: flex; flex-direction: column; gap: 1.2rem; }
+.form-input, .form-textarea {
+    width: 100%; padding: 1rem 1.2rem;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--glass-dark);
+    color: var(--text);
+    font-size: 1.08rem;
+    font-family: inherit;
+    transition: var(--transition);
+    margin-bottom: 0.2rem;
+    box-shadow: 0 2px 8px rgba(95,111,255,0.04);
+}
+.form-input:focus, .form-textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--primary-light);
+}
+.textarea-footer {
+    display: flex; justify-content: flex-end; font-size: 0.97rem;
+    color: var(--muted);
+}
+.char-limit-exceeded { color: #ff4d6d; }
+.submit-button {
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 0.9rem 1.7rem;
+    font-weight: 700;
+    font-size: 1.15rem;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    margin-top: 0.5rem;
+    display: flex; align-items: center; gap: 0.7rem;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+    font-family: 'Nunito', 'Inter', sans-serif;
+}
+.submit-button:hover:not(:disabled) {
+    background: linear-gradient(90deg, var(--primary-dark), var(--primary));
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 8px 24px rgba(95,111,255,0.13);
+}
+.submit-button:disabled { opacity: 0.6; cursor: not-allowed; }
+.messages-section { margin: 2.5rem auto 2rem auto; max-width: 700px; }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; }
+.section-title { font-size: 1.35rem; color: var(--primary); font-weight: 700; font-family: 'Nunito', 'Inter', sans-serif;}
+.refresh-icon { color: var(--primary); cursor: pointer; font-size: 1.1rem; transition: var(--transition);}
+.refresh-icon:hover { color: var(--accent); transform: rotate(180deg);}
+.message-list-container { display: flex; flex-direction: column; gap: 1.2rem; }
+
+.message-header-flex { 
+    display: flex; 
+    align-items: center; 
+    gap: 1rem; 
+    margin-bottom: 0.3rem;
+}
+
+.avatar-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #a1b6ff 0%, #5f6fff 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 1.3rem;
+    color: #fff;
+    box-shadow: 0 2px 12px rgba(95,111,255,0.12);
+    margin-right: 0.7rem;
+    transition: box-shadow 0.2s;
+}
+.avatar-circle:hover {
+    box-shadow: 0 4px 24px rgba(95,111,255,0.18);
+}
+.avatar-initials {
+    font-family: 'Nunito', 'Inter', sans-serif;
+    font-size: 1.2em;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+}
+
+.message-card {
+    background: var(--glass);
+    border-radius: 22px;
+    box-shadow: 0 4px 24px rgba(95,111,255,0.10);
+    padding: 1.4rem 1.7rem;
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.2s, border 0.2s;
+    margin-bottom: 0.7rem;
+}
+.message-card:hover {
+    box-shadow: 0 8px 32px rgba(95,111,255,0.16);
+    border: 1.5px solid var(--primary-light);
+}
+
+.message-meta {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.message-author {
+    font-weight: 800;
+    color: var(--primary);
+    font-size: 1.13rem;
+    font-family: 'Nunito', 'Inter', sans-serif;
+    margin-right: 0.2em;
+}
+
+.meta-separator {
+    margin: 0 0.5em;
+    color: var(--muted);
+    font-weight: 700;
+    font-size: 1.2em;
+    user-select: none;
+}
+
+.message-time {
+    font-size: 0.98rem;
+    color: var(--muted);
+    font-weight: 500;
+    font-family: 'Inter', 'Nunito', sans-serif;
+}
+
+.message-content {
+    line-height: 1.8;
+    color: var(--text);
+    margin-top: 0.4rem;
+    font-size: 1.08rem;
+    font-family: 'Inter', 'Nunito', sans-serif;
+}
