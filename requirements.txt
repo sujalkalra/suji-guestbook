@@ -3,3 +3,4 @@ python_fasthtml==0.4.5
 pytz==2022.5
 supabase==2.7.4
 sqlite_minutils
+reflex
