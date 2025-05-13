@@ -294,10 +294,6 @@ def index():
         text-shadow: 0 2px 8px rgba(95,111,255,0.09);
     }
     .theme-toggle-container { display: flex; align-items: center; }
-    ### Update the Toggle CSS
-    
-    Add or update the following CSS in your `css_style` block:
-    ```css
     .theme-toggle {
         position: relative;
         width: 52px;
@@ -364,7 +360,6 @@ def index():
         transform: translateX(24px);
         background: linear-gradient(135deg, var(--primary-dark), var(--accent));
     }
-    ```
     .meta-separator {
         margin: 0 0.5em;
         color: var(--muted);
