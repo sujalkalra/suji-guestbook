@@ -91,14 +91,13 @@ def render_theme_toggle():
     """)
     return Div(
         Label(
-            Input(type="checkbox", id="theme-toggle", _class="theme-toggle-input"),
+            Input(type="checkbox", id="theme-toggle", _class="theme-switch"),
             Span(
-                Span(I(_class="fas fa-moon"), _class="toggle-icon toggle-moon"),
-                Span(I(_class="fas fa-sun"), _class="toggle-icon toggle-sun"),
-                Span(_class="toggle-knob"),  # <-- Add this for the knob
-                _class="theme-toggle-slider"
+                I(_class="fas fa-moon icon moon"),
+                I(_class="fas fa-sun icon sun"),
+                _class="slider"
             ),
-            _class="theme-toggle"
+            _class="theme-switch"
         ),
         toggle_script,
         _class="theme-toggle-container"
@@ -524,5 +523,4 @@ body {
     font-size: 1.08rem;
     font-family: 'Inter', 'Nunito', sans-serif;
 }
-""") 
- # <-- Add this closing triple quote here
+""")
