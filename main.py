@@ -1105,48 +1105,45 @@ def render_content():
     """)
 
 # Routes
-    @app.get("/")
-    def index():
-        return Div(
+@app.get("/")
+def index():
+    return Div(
+        Div(
+            P("Welcome to my guestbook! Feel free to leave a message and connect with others. Your thoughts and feedback are greatly appreciated!", class_="welcome-text"),
+            class_="container"
+        ),
+        main := Main(
             Div(
-                P("Welcome to my guestbook! Feel free to leave a message and connect with others. Your thoughts and feedback are greatly appreciated!", class_="welcome-text"),
+                form,
+                messages_section,
+                stats_section,
                 class_="container"
             ),
-            main := Main(
-                Div(
-                    form,
-                    messages_section,
-                    stats_section,
-                    class_="container"
-                ),
-                class_="main-content"
-            ),
-            loading_overlay,
-            footer,
-            css_style,
-            class_="page-wrapper"
-        )
+            class_="main-content"
+        ),
+        loading_overlay,
+        footer,
+        css_style,
+        class_="page-wrapper"
+    )
     
-    @app.post("/submit-message")
-    def submit_message(name: str = Form(...), message: str = Form(...)):
-        # Validation
-        if len(name) > MAX_NAME_CHAR:
-            name = name[:MAX_NAME_CHAR]
-        
-        if len(message) > MAX_MESSAGE_CHAR:
-            message = message[:MAX_MESSAGE_CHAR]
-        
-        # Add message to database
-        add_message(name, message)
-        
-        # Return updated message list
-        return render_message_list()
+@app.post("/submit-message")
+def submit_message(name: str = Form(...), message: str = Form(...)):
+    # Validation
+    if len(name) > MAX_NAME_CHAR:
+        name = name[:MAX_NAME_CHAR]
     
-    @app.get("/refresh-messages")
-    def refresh_messages():
-        return render_message_list()
+    if len(message) > MAX_MESSAGE_CHAR:
+        message = message[:MAX_MESSAGE_CHAR]
+        
+    # Add message to database
+    add_message(name, message)
+        
+    # Return updated message list
+    return render_message_list()
+    
+@app.get("/refresh-messages")
+def refresh_messages():
+    return render_message_list()
 
-# Run the app if executed directly
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+serve()
