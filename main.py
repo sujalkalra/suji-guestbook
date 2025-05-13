@@ -524,3 +524,5 @@ body {
     font-size: 1.08rem;
     font-family: 'Inter', 'Nunito', sans-serif;
 }
+""") 
+ # <-- Add this closing triple quote here
