@@ -99,6 +99,16 @@ def render_theme_toggle():
     )
 
 # --- Main Content ---
+app, rt = fast_app(
+    hdrs=(
+        Link(rel='icon', type='image/x-icon', href="/assets/me.ico"),
+        Link(rel='preconnect', href="https://fonts.googleapis.com"),
+        Link(rel='preconnect', href="https://fonts.gstatic.com", crossorigin=""),
+        Link(rel='stylesheet', href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"),
+        Link(rel='stylesheet', href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"),
+    )
+)
+
 @app.get("/")
 def index():
     form = Form(
