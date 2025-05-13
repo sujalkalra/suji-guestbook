@@ -1107,6 +1107,163 @@ def render_content():
 # Routes
 @app.get("/")
 def index():
+    # Re-defining the components within the route function scope
+    # Form section with character counter
+    char_counter_script = Script("""
+    document.addEventListener('DOMContentLoaded', function() {
+        const messageTextarea = document.getElementById('message-textarea');
+        const charCounter = document.getElementById('char-counter');
+        const submitButton = document.querySelector('.submit-button');
+        
+        messageTextarea.addEventListener('input', function() {
+            const remaining = 500 - this.value.length;
+            charCounter.textContent = remaining + ' characters remaining';
+            
+            if (remaining < 0) {
+                charCounter.classList.add('char-limit-exceeded');
+                submitButton.disabled = true;
+            } else {
+                charCounter.classList.remove('char-limit-exceeded');
+                submitButton.disabled = false;
+            }
+        });
+        
+        // Form submission animation
+        const form = document.querySelector('.guestbook-form');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        
+        form.addEventListener('submit', function() {
+            loadingOverlay.classList.add('visible');
+            setTimeout(() => {
+                loadingOverlay.classList.remove('visible');
+            }, 1000);
+        });
+    });
+    """)
+
+    form = Form(
+        Div(
+            H2("Leave a Message", class_="form-title"),
+            Div(
+                Div(
+                    Label("Your Name", for_="name-input", class_="form-label"),
+                    Div(
+                        I(class_="fas fa-user input-icon"),
+                        Input(
+                            type="text",
+                            id="name-input",
+                            name="name",
+                            placeholder="Enter your name",
+                            required=True,
+                            maxlength=MAX_NAME_CHAR,
+                            class_="form-input"
+                        ),
+                        class_="input-container"
+                    ),
+                    class_="form-group"
+                ),
+                Div(
+                    Label("Your Message", for_="message-textarea", class_="form-label"),
+                    Div(
+                        I(class_="fas fa-comment input-icon"),
+                        Textarea(
+                            id="message-textarea",
+                            placeholder="Share your thoughts...",
+                            name="message",
+                            required=True,
+                            rows="4",
+                            maxlength="500",
+                            class_="form-textarea"
+                        ),
+                        class_="textarea-container"
+                    ),
+                    Div(
+                        Span("500 characters remaining", id="char-counter", class_="char-counter"),
+                        class_="textarea-footer"
+                    ),
+                    class_="form-group"
+                ),
+                class_="form-fields"
+            ),
+            Div(
+                Button(
+                    I(class_="fas fa-paper-plane"),
+                    " Submit Message",
+                    type="submit",
+                    class_="submit-button"
+                ),
+                class_="form-actions"
+            ),
+            class_="form-container"
+        ),
+        char_counter_script,
+        method="post",
+        hx_post="/submit-message",
+        hx_target="#message-list",
+        hx_swap="outerHTML",
+        hx_indicator="#loading-overlay",
+        hx_on__after_request="this.reset(); document.getElementById('char-counter').textContent = '500 characters remaining';",
+        class_="guestbook-form"
+    )
+
+    # Loading overlay
+    loading_overlay = Div(
+        Div(
+            Div(class_="spinner"),
+            P("Sending your message...", class_="loading-text"),
+            class_="loading-content"
+        ),
+        id="loading-overlay",
+        class_="loading-overlay"
+    )
+
+    # Messages section
+    messages_section = Section(
+        Div(
+            H2("Recent Messages", class_="section-title"),
+            I(class_="fas fa-sync-alt refresh-icon", title="Refresh messages", 
+              hx_get="/refresh-messages", hx_target="#message-list", hx_swap="outerHTML"),
+            class_="section-header"
+        ),
+        render_message_list(),
+        class_="messages-section"
+    )
+
+    # Stats section
+    stats_section = Section(
+        Div(
+            Div(
+                I(class_="fas fa-users stat-icon"),
+                Div(
+                    H3("25+", class_="stat-number"),
+                    P("Visitors", class_="stat-label"),
+                    class_="stat-text"
+                ),
+                class_="stat-item"
+            ),
+            Div(
+                I(class_="fas fa-comments stat-icon"),
+                Div(
+                    H3("100+", class_="stat-number"),
+                    P("Messages", class_="stat-label"),
+                    class_="stat-text"
+                ),
+                class_="stat-item"
+            ),
+            Div(
+                I(class_="fas fa-heart stat-icon"),
+                Div(
+                    H3("Thank You", class_="stat-number"),
+                    P("For Visiting", class_="stat-label"),
+                    class_="stat-text"
+                ),
+                class_="stat-item"
+            ),
+            class_="stats-container"
+        ),
+        class_="stats-section"
+    )
+
     return Div(
         Div(
             P("Welcome to my guestbook! Feel free to leave a message and connect with others. Your thoughts and feedback are greatly appreciated!", class_="welcome-text"),
@@ -1126,22 +1283,22 @@ def index():
         css_style,
         class_="page-wrapper"
     )
-    
+
 @app.post("/submit-message")
 def submit_message(name: str = Form(...), message: str = Form(...)):
     # Validation
     if len(name) > MAX_NAME_CHAR:
         name = name[:MAX_NAME_CHAR]
-    
+
     if len(message) > MAX_MESSAGE_CHAR:
         message = message[:MAX_MESSAGE_CHAR]
-        
+
     # Add message to database
     add_message(name, message)
-        
+
     # Return updated message list
     return render_message_list()
-    
+
 @app.get("/refresh-messages")
 def refresh_messages():
     return render_message_list()
