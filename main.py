@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 import pytz
+import html # Added import
 from supabase import create_client
 from dotenv import load_dotenv
 from fasthtml.common import *
@@ -9,6 +10,7 @@ from fasthtml.common import *
 load_dotenv()
 MAX_NAME_CHAR = 30
 MAX_MESSAGE_CHAR = 500
+MESSAGES_PER_PAGE = 10 # Added for pagination
 TIMESTAMP_FMT = "%Y-%m-%d %I:%M:%S %p %Z"
 IST_TZ = pytz.timezone("Asia/Kolkata")
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -20,20 +22,56 @@ def get_ist_time():
     return datetime.now(IST_TZ)
 
 def add_message(name, message):
-    timestamp = get_ist_time().strftime(TIMESTAMP_FMT)
-    supabase.table("myGuestbook").insert(
-        {"name": name, "message": message, "timestamp": timestamp}
-    ).execute()
+    # Validate input
+    if not name or not name.strip():
+        print("Error: Name cannot be empty or just whitespace.")
+        return False
+    if not message or not message.strip():
+        print("Error: Message cannot be empty or just whitespace.")
+        return False
+    if len(name.strip()) > MAX_NAME_CHAR:
+        print(f"Error: Name exceeds maximum length of {MAX_NAME_CHAR}.")
+        return False
+    if len(message.strip()) > MAX_MESSAGE_CHAR:
+        print(f"Error: Message exceeds maximum length of {MAX_MESSAGE_CHAR}.")
+        return False
 
-def get_messages(limit=10):
-    response = (
-        supabase.table("myGuestbook")
-        .select("*")
-        .order("id", desc=True)
-        .limit(limit)
-        .execute()
-    )
-    return response.data
+    # Sanitize input
+    sanitized_name = html.escape(name.strip())
+    sanitized_message = html.escape(message.strip())
+
+    timestamp = get_ist_time().strftime(TIMESTAMP_FMT)
+    try:
+        supabase.table("myGuestbook").insert(
+            {"name": sanitized_name, "message": sanitized_message, "timestamp": timestamp}
+        ).execute()
+        return True
+    except Exception as e:
+        print(f"Error adding message to Supabase: {e}")
+        return False
+
+def get_messages(page: int = 1, per_page: int = MESSAGES_PER_PAGE):
+    try:
+        offset = (page - 1) * per_page
+        response = (
+            supabase.table("myGuestbook")
+            .select("*", count="exact") # Request total count
+            .order("id", desc=True)
+            .range(offset, offset + per_page - 1) # Use range for pagination
+            .execute()
+        )
+        # The count is available in response.count if `count="exact"` is used.
+        # For has_more, we check if fetched items + offset < total count,
+        # or simpler: if fetched items == per_page (common proxy for has_more).
+        total_fetched = len(response.data)
+        # has_more = (offset + total_fetched) < response.count if response.count is not None else False
+        # Simpler has_more for now:
+        has_more = total_fetched == per_page
+
+        return {'data': response.data, 'current_page': page, 'per_page': per_page, 'total_fetched': total_fetched, 'has_more': has_more}
+    except Exception as e:
+        print(f"Error getting messages: {e}")
+        return {'data': [], 'current_page': page, 'per_page': per_page, 'total_fetched': 0, 'has_more': False}
 
 def render_avatar(name):
     initials = "".join([x[0] for x in name.split()][:2]).upper()
@@ -70,7 +108,46 @@ def render_message_list():
             ),
             id="message-list"
         )
-    return Div(*(render_message(entry) for entry in messages), id="message-list", _class="message-list-container")
+    # This function is being replaced by render_message_list_content
+    # and the new /messages route.
+    # messages = get_messages() # Old call
+    # if not messages: # Old check
+    #     return Div(
+    #         Div(
+    #             I(_class="far fa-comment-dots empty-icon"),
+    #             H3("No messages yet", _class="empty-title"),
+    #             P("Be the first to leave a message in the guestbook!", _class="empty-text"),
+    #             _class="empty-message"
+    #         ),
+    #         id="message-list" # This ID will now be on the wrapper in index()
+    #     )
+def render_message_list_content(page: int):
+    messages_info = get_messages(page=page, per_page=MESSAGES_PER_PAGE)
+    
+    if page == 1 and messages_info['total_fetched'] == 0:
+        return [Div( # Return as a list with one item
+            Div(
+                I(_class="far fa-comment-dots empty-icon"),
+                H3("No messages yet", _class="empty-title"),
+                P("Be the first to leave a message in the guestbook!", _class="empty-text"),
+                _class="empty-message"
+            ),
+            # id="message-list-items" # ID will be on the wrapper
+        )]
+
+    rendered_messages = [render_message(entry) for entry in messages_info['data']]
+
+    if messages_info['has_more']:
+        rendered_messages.append(
+            Button("Load More Messages", 
+                   _class="load-more-button", 
+                   hx_get=f"/messages?page={page + 1}", 
+                   hx_target="this", # The button itself
+                   hx_swap="outerHTML", # Replace button with new content (new msgs + next button)
+                   # Consider adding hx_indicator here if a global one isn't used
+                  )
+        )
+    return rendered_messages
 
 def render_theme_toggle():
     toggle_script = Script("""
@@ -91,7 +168,7 @@ def render_theme_toggle():
     """)
     return Div(
         Label(
-            Input(type="checkbox", id="theme-toggle", _class="theme-switch"),
+            Input(type="checkbox", id="theme-toggle", _class="theme-switch", aria_label="Toggle website theme between light and dark modes"),
             Span(
                 I(_class="fas fa-moon icon moon"),
                 I(_class="fas fa-sun icon sun"),
@@ -107,6 +184,7 @@ def render_theme_toggle():
 app, rt = fast_app(
     hdrs=(
         Link(rel='icon', type='image/x-icon', href="/assets/me.ico"),
+        Link(rel='stylesheet', href='/assets/style.css'),
         Link(rel='preconnect', href="https://fonts.googleapis.com"),
         Link(rel='preconnect', href="https://fonts.gstatic.com", crossorigin=""),
         Link(rel='stylesheet', href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"),
@@ -118,13 +196,15 @@ app, rt = fast_app(
 def index():
     form = Form(
         Div(
+            # Consider adding <Label for="name-input">Your Name</Label> explicitly for better a11y
             Input(
                 type="text", name="name", placeholder="Your Name", required=True,
-                maxlength=MAX_NAME_CHAR, _class="form-input"
+                maxlength=MAX_NAME_CHAR, _class="form-input", id="name-input", aria_label="Your Name"
             ),
+            # Consider adding <Label for="message-input">Your Message</Label> explicitly
             Textarea(
                 placeholder="Leave a message...", name="message", required=True,
-                rows=3, maxlength=MAX_MESSAGE_CHAR, _class="form-textarea"
+                rows=3, maxlength=MAX_MESSAGE_CHAR, _class="form-textarea", id="message-input", aria_label="Your Message"
             ),
             Div(
                 Span(f"{MAX_MESSAGE_CHAR} characters remaining", id="char-counter", _class="char-counter"),
@@ -132,7 +212,7 @@ def index():
             ),
             Button(
                 I(_class="fas fa-paper-plane"), " Send",
-                type="submit", _class="submit-button"
+                type="submit", _class="submit-button", aria_label="Send your message"
             ),
             _class="form-fields"
         ),
@@ -174,10 +254,11 @@ def index():
         Div(
             H2("Recent Messages", _class="section-title"),
             I(_class="fas fa-sync-alt refresh-icon", title="Refresh messages",
-              hx_get="/refresh-messages", hx_target="#message-list", hx_swap="outerHTML"),
+              hx_get="/messages?page=1", hx_target="#message-list-items", hx_swap="innerHTML", # Or outerHTML if #message-list-items is the direct list
+              role="button", aria_label="Refresh messages", tabindex="0"),
             _class="section-header"
         ),
-        render_message_list(),
+        Div(*render_message_list_content(page=1), id="message-list-items"), # Unpack content here
         _class="messages-section"
     )
 
@@ -207,13 +288,33 @@ def index():
 
     # Return the full page content
     return [
-        css_style,
         header,
         form,
         messages_section,
         stats_section,
         footer
     ]
+
+@app.post("/submit-message")
+async def submit_message(name: str, message: str):
+    add_message(name, message) # Return value is ignored as per current plan
+    # The old render_message_list() is gone.
+    # This should probably return the new structure as well, if used by any hx-post.
+    # For now, let's assume the form's hx_target="#message-list-items" and hx_swap will handle it
+    # by this endpoint returning the same kind of partial as /messages.
+    # This might need adjustment if the form post expects a different structure.
+    # However, the original form was hx_target="#message-list", hx_swap="outerHTML".
+    # The new ID for items is "#message-list-items".
+    # The form's hx_target should be "#message-list-items" and hx_swap="innerHTML" (or outerHTML).
+    # Let's update the form target and swap in the index() function later if needed.
+    # For now, this function will return the first page of messages.
+    return render_message_list_content(page=1)
+
+
+# This replaces the old @app.get("/refresh-messages")
+@app.get("/messages")
+async def get_messages_paginated(page: int = 1): # FastAPI/Starlette handles query param conversion
+    return render_message_list_content(page=page)
 
 css_style = Style("""
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Nunito:wght@400;700&display=swap');
@@ -679,4 +780,3 @@ body {
     border-radius: var(--radius);
     border: 1px solid var(--border);
 }
-""")
