@@ -5,3 +5,4 @@ supabase==2.7.4
 sqlite_minutils
 requests
 pytest
+reflex
